@@ -198,4 +198,184 @@ if __name__ == "__main__":
 ```python
 Singleton works, both variables contain the same instance.
 ```
+- 3. รูปแบบ Abstract Factory
+- องค์ประกอบ Abstract Factory
+  รูปแบบ Abstract Factory ขยายแนวคิดของ Factory Method ไปอีกขั้น ช่วยให้สามารถสร้างกลุ่มของ Object ที่เกี่ยวข้องกันโดยไม่ต้องระบุ Class ที่เป็นรูปธรรม (ไม่ต้องกำหนดว่า Class ทำงานยังไง) ก็สามารถสร้างเป็นกลุ่มสำหรับการใช้งานร่วมกันได้ รูปแบบนี้เหมาะสำหรับการสร้างระบบที่มี Object ที่เกี่ยวข้องกันจำนวนมาก (คือ ไม่เหมือนกัน แต่ผลลัพธ์ปลายทางการใช้งานเหมือนกัน)
 
+-ความแตกต่างระหว่าง Abstract Factory และ Factory Method อยู่ที่ “ระดับของความสัมพันธ์” ในการสร้าง Object
+
+- Factory Method เป็นรูปแบบที่ใช้สร้าง Object ของ Class เดียว โดยมี method ใน Class เดียวเป็นตัวกำหนดว่าจะสร้าง Object ประเภทใดออกมาใน Factory นั้น (ดังตัวอย่างที่เราเห็นในก่อนหน้านี้)
+Abstract Factory เป็นรูปแบบที่ใช้สร้าง Object จากกลุ่มของ Class ที่เกี่ยวข้องกัน โดยมี method ที่ถูกกำหนดใน interface เพื่อสร้าง Object ในกลุ่มออกมา (เทียบได้กับการสร้างหลายๆ Factory มารวมไว้ Factory เดียวกัน แต่ Factory หลายๆ Factory นั้นยังเป็นประเภทเดียวกันอยู่ แต่สามารถสร้างจาก Abstract Factory ตัวเดียวออกมาได้)
+รูปแบบ Abstract Factory เหมาะสำหรับการสร้างระบบที่ต้องการสร้างกลุ่มของ Object ที่เกี่ยวข้องกัน และมีความยืดหยุ่นในการเปลี่ยนแปลง Class ที่ใช้ในการสร้าง Object ได้
+
+- รูปแบบ Abstract Factory ประกอบด้วยองค์ประกอบต่อไปนี้
+
+- Abstract Factory เป็น interface ที่กำหนดวิธีสร้าง Object ในกลุ่มที่เกี่ยวข้องกันโดยใช้ method ตามประเภทของ Object
+- Concrete Factory เป็น Class ที่สืบทอดมาจาก Abstract Factory และมีการสร้าง Object ในกลุ่มที่เกี่ยวข้อง
+- Abstract Product เป็น interface ที่กำหนดวิธีการใช้งานของ Object ในกลุ่มที่เกี่ยวข้อง
+- Concrete Product เป็น Class ที่สืบทอดมาจาก Abstract Product และมีการกำหนดวิธีการใช้งานของ Object ในกลุ่มที่เกี่ยวข้อง
+
+- ตัวอย่าง code
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class AbstractFactory(ABC):
+    """
+    อินเทอร์เฟซ Abstract Factory ประกาศชุดของเมธอดที่คืนค่าผลิตภัณฑ์นามธรรมที่แตกต่างกัน 
+    ผลิตภัณฑ์เหล่านี้เรียกว่าครอบครัว (family) และมีความเกี่ยวข้องกันด้วยธีมหรือแนวคิดระดับสูง 
+    ผลิตภัณฑ์ของครอบครัวหนึ่งมักสามารถทำงานร่วมกันได้ 
+    ครอบครัวของผลิตภัณฑ์อาจมีหลายเวอร์ชัน แต่ผลิตภัณฑ์ของเวอร์ชันหนึ่งจะไม่สามารถใช้งานร่วมกับผลิตภัณฑ์ของเวอร์ชันอื่นได้
+    """
+    @abstractmethod
+    def create_product_a(self) -> AbstractProductA:
+        pass
+
+    @abstractmethod
+    def create_product_b(self) -> AbstractProductB:
+        pass
+
+
+class ConcreteFactory1(AbstractFactory):
+    """
+    Concrete Factories ผลิตครอบครัวของผลิตภัณฑ์ที่อยู่ในเวอร์ชันเดียวกัน
+    โรงงานรับประกันว่าผลิตภัณฑ์ที่ได้จะสามารถใช้งานร่วมกันได้ 
+    สังเกตว่าลายเซ็นของเมธอดใน Concrete Factory คืนค่าผลิตภัณฑ์นามธรรม 
+    ในขณะที่ภายในเมธอดจะสร้างผลิตภัณฑ์คอนกรีต
+    """
+
+    def create_product_a(self) -> AbstractProductA:
+        return ConcreteProductA1()
+
+    def create_product_b(self) -> AbstractProductB:
+        return ConcreteProductB1()
+
+
+class ConcreteFactory2(AbstractFactory):
+    """
+    โรงงานคอนกรีตแต่ละแห่งมีผลิตภัณฑ์เวอร์ชันที่สอดคล้องกัน
+    """
+
+    def create_product_a(self) -> AbstractProductA:
+        return ConcreteProductA2()
+
+    def create_product_b(self) -> AbstractProductB:
+        return ConcreteProductB2()
+
+
+class AbstractProductA(ABC):
+    """
+    ผลิตภัณฑ์ที่แตกต่างกันของครอบครัวผลิตภัณฑ์ควรมีอินเทอร์เฟซฐาน 
+    เวอร์ชันทั้งหมดของผลิตภัณฑ์ต้องใช้งานอินเทอร์เฟซนี้
+    """
+
+    @abstractmethod
+    def useful_function_a(self) -> str:
+        pass
+
+
+"""
+Concrete Products ถูกสร้างขึ้นโดย Concrete Factories ที่สอดคล้องกัน
+"""
+
+
+class ConcreteProductA1(AbstractProductA):
+    def useful_function_a(self) -> str:
+        return "The result of the product A1."
+
+
+class ConcreteProductA2(AbstractProductA):
+    def useful_function_a(self) -> str:
+        return "The result of the product A2."
+
+
+class AbstractProductB(ABC):
+    """
+    นี่คืออินเทอร์เฟซฐานของผลิตภัณฑ์อีกตัว 
+    ผลิตภัณฑ์ทั้งหมดสามารถทำงานร่วมกันได้ แต่การทำงานร่วมกันอย่างถูกต้องสามารถทำได้ระหว่างผลิตภัณฑ์ของเวอร์ชันเดียวกันเท่านั้น
+    """
+    @abstractmethod
+    def useful_function_b(self) -> str:
+        """
+        ผลิตภัณฑ์ B สามารถทำสิ่งของมันเองได้...
+        """
+        pass
+
+    @abstractmethod
+    def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
+        """
+        ...แต่ยังสามารถร่วมมือกับผลิตภัณฑ์ A ได้ด้วย
+
+        Abstract Factory ทำให้มั่นใจว่าผลิตภัณฑ์ทั้งหมดที่สร้างขึ้นเป็นของเวอร์ชันเดียวกันและดังนั้นจึงสามารถทำงานร่วมกันได้
+        """
+        pass
+
+
+"""
+Concrete Products ถูกสร้างขึ้นโดย Concrete Factories ที่สอดคล้องกัน
+"""
+
+
+class ConcreteProductB1(AbstractProductB):
+    def useful_function_b(self) -> str:
+        return "The result of the product B1."
+
+    """
+    เวอร์ชัน Product B1 สามารถทำงานได้อย่างถูกต้องกับเวอร์ชัน Product A1 เท่านั้น
+    อย่างไรก็ตาม มันยอมรับอินสแตนซ์ใด ๆ ของ AbstractProductA เป็นอาร์กิวเมนต์
+    """
+
+    def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
+        result = collaborator.useful_function_a()
+        return f"The result of the B1 collaborating with the ({result})"
+
+
+class ConcreteProductB2(AbstractProductB):
+    def useful_function_b(self) -> str:
+        return "The result of the product B2."
+
+    def another_useful_function_b(self, collaborator: AbstractProductA) -> str:
+        """
+        เวอร์ชัน Product B2 สามารถทำงานได้อย่างถูกต้องกับเวอร์ชัน Product A2 เท่านั้น
+        อย่างไรก็ตาม มันยอมรับอินสแตนซ์ใด ๆ ของ AbstractProductA เป็นอาร์กิวเมนต์
+        """
+        result = collaborator.useful_function_a()
+        return f"The result of the B2 collaborating with the ({result})"
+
+
+def client_code(factory: AbstractFactory) -> None:
+    """
+    โค้ดของลูกค้าทำงานกับโรงงานและผลิตภัณฑ์ผ่านทางประเภทนามธรรมเท่านั้น: AbstractFactory และ AbstractProduct
+    สิ่งนี้ช่วยให้คุณส่งผ่านคลาสย่อยของโรงงานหรือผลิตภัณฑ์ใด ๆ ให้กับโค้ดของลูกค้าโดยไม่ทำให้โค้ดพัง
+    """
+    product_a = factory.create_product_a()
+    product_b = factory.create_product_b()
+
+    print(f"{product_b.useful_function_b()}")
+    print(f"{product_b.another_useful_function_b(product_a)}", end="")
+
+
+if __name__ == "__main__":
+    """
+    โค้ดของลูกค้าสามารถทำงานกับคลาสโรงงานคอนกรีตใด ๆ ก็ได้
+    """
+    print("Client: Testing client code with the first factory type:")
+    client_code(ConcreteFactory1())
+
+    print("\n")
+
+    print("Client: Testing the same client code with the second factory type:")
+    client_code(ConcreteFactory2())
+```
+- Output
+
+```python
+Client: Testing client code with the first factory type:
+The result of the product B1.
+The result of the B1 collaborating with the (The result of the product A1.)
+
+Client: Testing the same client code with the second factory type:
+The result of the product B2.
+The result of the B2 collaborating with the (The result of the product A2.)
+``` 
