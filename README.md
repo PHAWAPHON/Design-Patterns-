@@ -378,4 +378,353 @@ The result of the B1 collaborating with the (The result of the product A1.)
 Client: Testing the same client code with the second factory type:
 The result of the product B2.
 The result of the B2 collaborating with the (The result of the product A2.)
-``` 
+```
+
+- 4.รูปแบบ Builder
+- องค์ประกอบ Builder Pattern
+รูปแบบ Builder เป็นการแยกส่วนการสร้าง Object ที่ซับซ้อนออกจาก instance ช่วยให้สามารถสร้าง Object เดียวกันด้วยวิธีการที่แตกต่างกันได้ pattern นี้จะช่วยทำให้เราสามารถรวมคำสั่งการสร้างและจัดการคำสั่งการสร้างไว้ภายใน object ได้ ส่งผลทำให้ตอนเรียกใช้งานการสร้าง Object นั้น code มีความซับซ้อนน้อยลงจากการห่อหุ้มคำสั่ง build เหล่านี้เอาไว้
+
+- รูปแบบ Builder ประกอบด้วยองค์ประกอบต่อไปนี้
+
+- Product เป็น Object ที่ต้องการสร้างโดย Builder และมีการกำหนดวิธีการใช้งานของ Object
+- Builder เป็น interface ที่กำหนดวิธีการสร้าง Product แต่ละตัว ซึ่งประกอบด้วย method ต่าง ๆ ที่ใช้ในกระบวนการสร้าง Product ตามลำดับที่กำหนด
+- Concrete Builder เป็น Class ที่สืบทอดมาจาก Builder และมีการแลกเปลี่ยนข้อมูลกับ Product ที่กำลังสร้างขึ้น
+- Director เป็น Class ที่ใช้ในการควบคุมกระบวนการสร้าง Product โดยใช้ Builder เพื่อสร้าง Product ตามลำดับที่กำหนด
+
+- ตัวอย่าง code
+```python from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Any
+
+
+class Builder(ABC):
+    """
+    อินเทอร์เฟซ Builder กำหนดเมธอดสำหรับการสร้างส่วนต่างๆ ของออบเจ็กต์ Product
+    """
+
+    @property
+    @abstractmethod
+    def product(self) -> None:
+        pass
+
+    @abstractmethod
+    def produce_part_a(self) -> None:
+        pass
+
+    @abstractmethod
+    def produce_part_b(self) -> None:
+        pass
+
+    @abstractmethod
+    def produce_part_c(self) -> None:
+        pass
+
+
+class ConcreteBuilder1(Builder):
+    """
+    คลาส Concrete Builder ทำตามอินเทอร์เฟซ Builder และให้การนำไปใช้เฉพาะของขั้นตอนการสร้าง
+    โปรแกรมของคุณอาจมี Builder หลายรูปแบบที่นำไปใช้ต่างกัน
+    """
+
+    def __init__(self) -> None:
+        """
+        อินสแตนซ์ใหม่ของ Builder ควรมีออบเจ็กต์ Product ว่างเปล่าที่ใช้ในการประกอบต่อไป
+        """
+        self.reset()
+
+    def reset(self) -> None:
+        self._product = Product1()
+
+    @property
+    def product(self) -> Product1:
+        """
+        Concrete Builders ควรมีเมธอดของตัวเองสำหรับการดึงผลลัพธ์
+        นั่นเป็นเพราะ Builder ประเภทต่างๆ อาจสร้างผลิตภัณฑ์ที่ไม่เหมือนกันโดยสิ้นเชิงที่ไม่ตามอินเทอร์เฟซเดียวกัน
+        ดังนั้นเมธอดเหล่านี้จึงไม่สามารถประกาศในอินเทอร์เฟซ Builder พื้นฐานได้
+        (อย่างน้อยในภาษาโปรแกรมที่พิมพ์แบบคงที่)
+
+        โดยปกติหลังจากคืนผลลัพธ์สุดท้ายให้กับลูกค้า อินสแตนซ์ Builder จะต้องพร้อมที่จะเริ่มสร้างผลิตภัณฑ์อื่น
+        นั่นเป็นเหตุผลที่มักเรียกเมธอด reset ที่ส่วนท้ายของเมธอด `getProduct` 
+        อย่างไรก็ตาม พฤติกรรมนี้ไม่บังคับ คุณสามารถทำให้ Builder ของคุณรอการเรียก reset อย่างชัดเจนจากโค้ดของลูกค้าก่อนที่จะลบผลลัพธ์ก่อนหน้า
+        """
+        product = self._product
+        self.reset()
+        return product
+
+    def produce_part_a(self) -> None:
+        self._product.add("PartA1")
+
+    def produce_part_b(self) -> None:
+        self._product.add("PartB1")
+
+    def produce_part_c(self) -> None:
+        self._product.add("PartC1")
+
+
+class Product1():
+    """
+    ควรใช้แพทเทิร์น Builder ก็ต่อเมื่อผลิตภัณฑ์ของคุณมีความซับซ้อนและต้องการการกำหนดค่าที่กว้างขวาง
+
+    ต่างจากแพทเทิร์นการสร้างอื่นๆ Builders คอนกรีตต่างๆ สามารถสร้างผลิตภัณฑ์ที่ไม่เกี่ยวข้องกันได้
+    กล่าวอีกนัยหนึ่ง ผลลัพธ์ของ Builders ต่างๆ อาจไม่ตามอินเทอร์เฟซเดียวกันเสมอไป
+    """
+
+    def __init__(self) -> None:
+        self.parts = []
+
+    def add(self, part: Any) -> None:
+        self.parts.append(part)
+
+    def list_parts(self) -> None:
+        print(f"Product parts: {', '.join(self.parts)}", end="")
+
+
+class Director:
+    """
+    Director รับผิดชอบเฉพาะการดำเนินการขั้นตอนการสร้างตามลำดับที่กำหนดเท่านั้น
+    มันมีประโยชน์เมื่อผลิตผลิตภัณฑ์ตามลำดับหรือการกำหนดค่าที่เฉพาะเจาะจง
+    จริงๆ แล้วคลาส Director เป็นตัวเลือก เนื่องจากลูกค้าสามารถควบคุม Builders ได้โดยตรง
+    """
+
+    def __init__(self) -> None:
+        self._builder = None
+
+    @property
+    def builder(self) -> Builder:
+        return self._builder
+
+    @builder.setter
+    def builder(self, builder: Builder) -> None:
+        """
+        Director ทำงานกับอินสแตนซ์ของ Builder ใดๆ ที่โค้ดของลูกค้าส่งมาให้
+        ด้วยวิธีนี้ โค้ดของลูกค้าอาจเปลี่ยนประเภทของผลิตภัณฑ์ที่ประกอบใหม่ได้
+        """
+        self._builder = builder
+
+    """
+    Director สามารถสร้างผลิตภัณฑ์หลายเวอร์ชันโดยใช้ขั้นตอนการสร้างเดียวกัน
+    """
+
+    def build_minimal_viable_product(self) -> None:
+        self.builder.produce_part_a()
+
+    def build_full_featured_product(self) -> None:
+        self.builder.produce_part_a()
+        self.builder.produce_part_b()
+        self.builder.produce_part_c()
+
+
+if __name__ == "__main__":
+    """
+    โค้ดของลูกค้าสร้างออบเจ็กต์ Builder ส่งให้กับ Director และเริ่มกระบวนการสร้าง 
+    ผลลัพธ์สุดท้ายจะถูกดึงจากออบเจ็กต์ Builder
+    """
+
+    director = Director()
+    builder = ConcreteBuilder1()
+    director.builder = builder
+
+    print("Standard basic product: ")
+    director.build_minimal_viable_product()
+    builder.product.list_parts()
+
+    print("\n")
+
+    print("Standard full featured product: ")
+    director.build_full_featured_product()
+    builder.product.list_parts()
+
+    print("\n")
+
+    # จำไว้ว่าแพทเทิร์น Builder สามารถใช้ได้โดยไม่มีคลาส Director
+    print("Custom product: ")
+    builder.produce_part_a()
+    builder.produce_part_b()
+    builder.product.list_parts()
+```
+
+- Output
+```python
+Standard basic product: 
+Product parts: PartA1
+
+Standard full featured product: 
+Product parts: PartA1, PartB1, PartC1
+
+Custom product: 
+Product parts: PartA1, PartB1
+```
+
+- 5. รูปแบบ Prototype
+- รูปแบบ Prototype เป็นวิธีการออกแบบ Software ที่ช่วยให้สร้าง Object ใหม่โดยการคัดลอก Object ที่มีอยู่ออกมาได้ (ตามชื่อ Prototype นั้นเลย) เพื่อเป็นการประหยัดกระบวนการสร้าง object ที่อาจจะต้องค่อยๆใส่ข้อมูลทีละชุดเข้าไปจากการสร้าง instance ใหม่ เราสามารถใช้ pattern นี้ในการสร้าง object ที่หน้าตาเหมือนกันออกมาได้เลย
+
+- รูปแบบ Prototype ประกอบด้วยองค์ประกอบต่อไปนี้
+
+- Prototype เป็น Object ต้นแบบที่ใช้ในการคัดลอกและสร้าง Object ใหม่ มักใช้ในรูปแบบของ instance ที่มีคุณสมบัติเดียวกันกับวัตถุต้นแบบ
+- Concrete Prototype เป็น Class ที่สืบทอดมาจาก Prototype และมีการ clone และสร้าง Object ใหม่จากต้นแบบ
+- Client เป็น Class หรือ Module ที่ใช้ในการ เรียกใช้งาน Object ต้นแบบและสร้าง Object ใหม่จากต้นแบบ (เป็นคนที่หยิบ Object หลัง Clone ไปใช้)
+
+- ตัวอย่าง code
+```python
+import copy
+
+
+class SelfReferencingEntity:
+    def __init__(self):
+        self.parent = None
+
+    def set_parent(self, parent):
+        self.parent = parent
+
+
+class SomeComponent:
+    """
+    Python มีอินเทอร์เฟซ Prototype ของตัวเองผ่านฟังก์ชัน `copy.copy` และ `copy.deepcopy`
+    คลาสใด ๆ ที่ต้องการการใช้งานที่กำหนดเองต้อง override ฟังก์ชันสมาชิก `__copy__` และ `__deepcopy__`
+    """
+
+    def __init__(self, some_int, some_list_of_objects, some_circular_ref):
+        self.some_int = some_int
+        self.some_list_of_objects = some_list_of_objects
+        self.some_circular_ref = some_circular_ref
+
+    def __copy__(self):
+        """
+        สร้าง shallow copy เมธอดนี้จะถูกเรียกเมื่อมีการเรียก `copy.copy` 
+        ด้วยออบเจ็กต์นี้และค่าที่คืนจะเป็น shallow copy ใหม่
+        """
+
+        # สร้างสำเนาของออบเจ็กต์ nested ก่อน
+        some_list_of_objects = copy.copy(self.some_list_of_objects)
+        some_circular_ref = copy.copy(self.some_circular_ref)
+
+        # โคลนออบเจ็กต์ตัวเองโดยใช้สำเนาของออบเจ็กต์ nested ที่เตรียมไว้
+        new = self.__class__(
+            self.some_int, some_list_of_objects, some_circular_ref
+        )
+        new.__dict__.update(self.__dict__)
+
+        return new
+
+    def __deepcopy__(self, memo=None):
+        """
+        สร้าง deep copy เมธอดนี้จะถูกเรียกเมื่อมีการเรียก `copy.deepcopy` 
+        ด้วยออบเจ็กต์นี้และค่าที่คืนจะเป็น deep copy ใหม่
+
+        อาร์กิวเมนต์ `memo` ใช้ทำอะไร? Memo เป็นดิกชันนารีที่ไลบรารี `deepcopy` 
+        ใช้เพื่อป้องกันการคัดลอกแบบวนซ้ำไม่รู้จบในกรณีของ circular references 
+        ส่งมันไปยังการเรียก `deepcopy` ทั้งหมดใน implementation ของ `__deepcopy__` 
+        เพื่อป้องกันการวนซ้ำไม่รู้จบ
+        """
+        if memo is None:
+            memo = {}
+
+        # สร้างสำเนาของออบเจ็กต์ nested ก่อน
+        some_list_of_objects = copy.deepcopy(self.some_list_of_objects, memo)
+        some_circular_ref = copy.deepcopy(self.some_circular_ref, memo)
+
+        # โคลนออบเจ็กต์ตัวเองโดยใช้สำเนาของออบเจ็กต์ nested ที่เตรียมไว้
+        new = self.__class__(
+            self.some_int, some_list_of_objects, some_circular_ref
+        )
+        new.__dict__ = copy.deepcopy(self.__dict__, memo)
+
+        return new
+
+
+if __name__ == "__main__":
+
+    list_of_objects = [1, {1, 2, 3}, [1, 2, 3]]
+    circular_ref = SelfReferencingEntity()
+    component = SomeComponent(23, list_of_objects, circular_ref)
+    circular_ref.set_parent(component)
+
+    shallow_copied_component = copy.copy(component)
+
+    # เปลี่ยนแปลง list ใน shallow_copied_component และดูว่ามันเปลี่ยนแปลงใน component หรือไม่
+    shallow_copied_component.some_list_of_objects.append("another object")
+    if component.some_list_of_objects[-1] == "another object":
+        print(
+            "Adding elements to `shallow_copied_component`'s "
+            "some_list_of_objects adds it to `component`'s "
+            "some_list_of_objects."
+        )
+    else:
+        print(
+            "Adding elements to `shallow_copied_component`'s "
+            "some_list_of_objects doesn't add it to `component`'s "
+            "some_list_of_objects."
+        )
+
+    # เปลี่ยนแปลง set ใน list ของ objects
+    component.some_list_of_objects[1].add(4)
+    if 4 in shallow_copied_component.some_list_of_objects[1]:
+        print(
+            "Changing objects in the `component`'s some_list_of_objects "
+            "changes that object in `shallow_copied_component`'s "
+            "some_list_of_objects."
+        )
+    else:
+        print(
+            "Changing objects in the `component`'s some_list_of_objects "
+            "doesn't change that object in `shallow_copied_component`'s "
+            "some_list_of_objects."
+        )
+
+    deep_copied_component = copy.deepcopy(component)
+
+    # เปลี่ยนแปลง list ใน deep_copied_component และดูว่ามันเปลี่ยนแปลงใน component หรือไม่
+    deep_copied_component.some_list_of_objects.append("one more object")
+    if component.some_list_of_objects[-1] == "one more object":
+        print(
+            "Adding elements to `deep_copied_component`'s "
+            "some_list_of_objects adds it to `component`'s "
+            "some_list_of_objects."
+        )
+    else:
+        print(
+            "Adding elements to `deep_copied_component`'s "
+            "some_list_of_objects doesn't add it to `component`'s "
+            "some_list_of_objects."
+        )
+
+    # เปลี่ยนแปลง set ใน list ของ objects
+    component.some_list_of_objects[1].add(10)
+    if 10 in deep_copied_component.some_list_of_objects[1]:
+        print(
+            "Changing objects in the `component`'s some_list_of_objects "
+            "changes that object in `deep_copied_component`'s "
+            "some_list_of_objects."
+        )
+    else:
+        print(
+            "Changing objects in the `component`'s some_list_of_objects "
+            "doesn't change that object in `deep_copied_component`'s "
+            "some_list_of_objects."
+        )
+
+    print(
+        f"id(deep_copied_component.some_circular_ref.parent): "
+        f"{id(deep_copied_component.some_circular_ref.parent)}"
+    )
+    print(
+        f"id(deep_copied_component.some_circular_ref.parent.some_circular_ref.parent): "
+        f"{id(deep_copied_component.some_circular_ref.parent.some_circular_ref.parent)}"
+    )
+    print(
+        "^^ This shows that deepcopied objects contain same reference, they "
+        "are not cloned repeatedly."
+    )
+
+```
+- Output
+```python
+Adding elements to `shallow_copied_component`'s some_list_of_objects adds it to `component`'s some_list_of_objects.
+Changing objects in the `component`'s some_list_of_objects changes that object in `shallow_copied_component`'s some_list_of_objects.
+Adding elements to `deep_copied_component`'s some_list_of_objects doesn't add it to `component`'s some_list_of_objects.
+Changing objects in the `component`'s some_list_of_objects doesn't change that object in `deep_copied_component`'s some_list_of_objects.
+id(deep_copied_component.some_circular_ref.parent): 4429472784
+id(deep_copied_component.some_circular_ref.parent.some_circular_ref.parent): 4429472784
+^^ This shows that deepcopied objects contain same reference, they are not cloned repeatedly.
+```
+
