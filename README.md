@@ -27,4 +27,102 @@ Patterns ประกอบด้วยอะไรบ้าง?
 > Usage examples: แพทเทิร์น Factory Method ถูกใช้งานอย่างแพร่หลายในโค้ด Python มันมีประโยชน์มากเมื่อคุณต้องการให้โค้ดของคุณมีความยืดหยุ่นสูง
 
 > Identification: วิธีการของ Factory สามารถระบุได้จากวิธีการสร้างที่สร้างออบเจ็กต์จากคลาสคอนกรีต ในขณะที่คลาสคอนกรีตถูกใช้ในระหว่างการสร้างออบเจ็กต์ ประเภทการคืนค่าของวิธีการ Factory มักจะถูกประกาศเป็นabstract classหรือinterface
-  
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Creator(ABC):
+    """
+    คลาส Creator ประกาศวิธีการ factory ที่มีหน้าที่คืนค่าออบเจ็กต์ของคลาส Product 
+    โดยทั่วไปแล้วคลาสย่อยของ Creator จะเป็นผู้ให้การดำเนินการของวิธีการนี้
+    """
+
+    @abstractmethod
+    def factory_method(self):
+        """
+        สังเกตว่า Creator อาจมีการให้การดำเนินการเริ่มต้นของวิธีการ factory ด้วย
+        """
+        pass
+
+    def some_operation(self) -> str:
+        """
+        นอกจากนี้ แม้จะมีชื่อว่า Creator หน้าที่หลักของมันไม่ได้เป็นการสร้างผลิตภัณฑ์
+        โดยทั่วไปแล้วมันจะมีตรรกะธุรกิจหลักที่พึ่งพาออบเจ็กต์ Product ที่คืนค่าจากวิธีการ factory
+        คลาสย่อยสามารถเปลี่ยนตรรกะธุรกิจนี้โดยอ้อมด้วยการโอเวอร์ไรด์วิธีการ factory และคืนค่า
+        ประเภทของผลิตภัณฑ์ที่แตกต่างออกไป
+        """
+
+        # เรียกวิธีการ factory เพื่อสร้างออบเจ็กต์ Product
+        product = self.factory_method()
+
+        # ตอนนี้ใช้ผลิตภัณฑ์
+        result = f"Creator: โค้ดเดียวกันของ Creator ทำงานกับ {product.operation()}"
+
+        return result
+
+
+"""
+Concrete Creators โอเวอร์ไรด์วิธีการ factory เพื่อเปลี่ยนประเภทของผลิตภัณฑ์ที่ได้
+"""
+
+
+class ConcreteCreator1(Creator):
+    """
+    สังเกตว่าลายเซ็นของวิธียังคงใช้ประเภทผลิตภัณฑ์นามธรรม แม้ว่าผลิตภัณฑ์คอนกรีตจะถูกคืนค่าจากวิธีการนี้
+    ด้วยวิธีนี้ Creator สามารถคงความเป็นอิสระจากคลาสผลิตภัณฑ์คอนกรีตได้
+    """
+
+    def factory_method(self) -> Product:
+        return ConcreteProduct1()
+
+
+class ConcreteCreator2(Creator):
+    def factory_method(self) -> Product:
+        return ConcreteProduct2()
+
+
+class Product(ABC):
+    """
+    อินเทอร์เฟซ Product ประกาศการดำเนินการที่ผลิตภัณฑ์คอนกรีตทั้งหมดต้องดำเนินการ
+    """
+
+    @abstractmethod
+    def operation(self) -> str:
+        pass
+
+
+"""
+Concrete Products ให้การดำเนินการหลากหลายของอินเทอร์เฟซ Product
+"""
+
+
+class ConcreteProduct1(Product):
+    def operation(self) -> str:
+        return "{ผลลัพธ์ของ ConcreteProduct1}"
+
+
+class ConcreteProduct2(Product):
+    def operation(self) -> str:
+        return "{ผลลัพธ์ของ ConcreteProduct2}"
+
+
+def client_code(creator: Creator) -> None:
+    """
+    โค้ดของลูกค้าทำงานกับอินสแตนซ์ของ Concrete Creator แม้ว่าผ่านทางอินเทอร์เฟซฐาน 
+    ตราบใดที่ลูกค้ายังคงทำงานกับ Creator ผ่านทางอินเทอร์เฟซฐาน คุณสามารถส่งผ่านคลาสย่อยใด ๆ ของ Creator ก็ได้
+    """
+
+    print(f"Client: ฉันไม่รู้จักคลาสของ Creator แต่ยังทำงานได้\n"
+          f"{creator.some_operation()}", end="")
+
+
+if __name__ == "__main__":
+    print("App: เริ่มต้นด้วย ConcreteCreator1.")
+    client_code(ConcreteCreator1())
+    print("\n")
+
+    print("App: เริ่มต้นด้วย ConcreteCreator2.")
+    client_code(ConcreteCreator2())
+```
