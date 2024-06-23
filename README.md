@@ -1588,3 +1588,1269 @@ Proxy: Checking access prior to firing a real request.
 RealSubject: Handling request.
 Proxy: Logging the time of request
 ```
+
+
+- Design Pattern Behavioral คืออะไร ?
+- Design Patterns Behavioral คือรูปแบบการออกแบบพฤติกรรม เป็นรูปแบบการออกแบบที่มุ่งเน้นไปที่ การสื่อสารและความสัมพันธ์ระหว่างวัตถุ (object) ต่างๆ ในระบบ Software รูปแบบเหล่านี้ช่วยให้นักพัฒนา Software สามารถออกแบบระบบที่ยืดหยุ่น เข้าใจง่าย และปรับเปลี่ยนได้ง่าย โดยไม่ต้องเขียน code ใหม่ทั้งหมดได้ ซึ่งใน Behavioral นี้มีทั้งหมด 10 รูปแบบได้แก่
+
+- Chain of Responsibility รูปแบบการออกแบบเชิงพฤติกรรมที่ทำให้เราสามารถส่งต่อ request ต่างๆ ผ่านกลุ่มของตัวจัดการ (handler) โดยเมื่อได้รับ request มาแล้ว ตัวจัดการแต่ละตัวจะตัดสินใจว่าจะดำเนินการตามคำขอนั้นเลย หรือจะส่งต่อไปยังตัวจัดการถัดไปในกลุ่มได้
+- Command รูปแบบการออกแบบเชิงพฤติกรรมที่เปลี่ยน request ให้เป็น object แบบ stand-alone ซึ่งภายใน object นั้นจะมีข้อมูลทั้งหมดเกี่ยวกับ request เอาไว้ การเปลี่ยนแปลงนี้ทำให้เราสามารถส่ง request ในรูปแบบของ argument ของ method ได้ รวมถึงสามารถหน่วงเวลาหรือจัดการลำดับการทำงานของ request หรือแม้แต่ยกเลิกคำสั่ง (undo) นั้นได้ด้วย
+- Iterator รูปแบบการออกแบบเชิงพฤติกรรมที่ช่วยให้เราสามารถสำรวจข้อมูลใน collection (ชุดข้อมูล) ได้ โดยไม่ต้องรู้โครงสร้างภายในของ collection นั้นว่าเป็นโครงสร้างแบบไหน (เช่น list, stack เป็นต้น)
+- Mediator รูปแบบการออกแบบเชิงพฤติกรรมที่ช่วยให้เราลดความยุ่งยากในการพึ่งพากันระหว่าง object ต่างๆ โดยรูปแบบนี้จะจำกัดการสื่อสารโดยตรงระหว่าง Object ด้วยกันเอง และบังคับให้พวกมันทำงานร่วมกันผ่าน Object ตัวกลางที่เรียกว่า “mediator” เท่านั้น
+- Memento รูปแบบการออกแบบเชิงพฤติกรรมที่ช่วยให้เราสามารถบันทึกและเรียกคืนสถานะก่อนหน้าของ Object ได้ โดยที่ไม่ต้องเปิดเผยรายละเอียดภายในของการทำงานได้
+- Observer รูปแบบการออกแบบเชิงพฤติกรรมที่ให้เราสามารถสร้างกลไกการติดตาม (subscription) เพื่อแจ้งให้ Object หลายๆ ตัวทราบเกี่ยวกับ event ต่างๆที่เกิดขึ้นกับ Object ที่กำลังเฝ้าสังเกตอยู่ได้ (เป็นตัวที่คอยบอกตัวอื่นๆว่าตัวที่เฝ้าสังเกตอยู่มีบางอย่างเกิดขึ้น เพื่อให้จัดการ action ต่อได้)
+- State รูปแบบการออกแบบเชิงพฤติกรรมที่ทำให้ Object สามารถเปลี่ยนแปลงการทำงานของตัวเองได้ เมื่อสถานะ (state) ภายในของมันเปลี่ยนไป ซึ่งภายนอกจะดูเหมือนกับว่า Object นั้นได้เปลี่ยนประเภท (class) ของตัวเองออกไปแทน (จัดการ state แบบ class)
+- Strategy รูปแบบการออกแบบเชิงพฤติกรรมที่ให้เรากำหนดกลุ่ม algorithm ต่างๆ โดยแยกแต่ละ algorithm ออกเป็น class ของตัวเอง เพื่อให้ Object ที่ใช้ algorithm เหล่านี้สามารถสับเปลี่ยนกันได้
+- Template Method รูปแบบการออกแบบเชิงพฤติกรรมที่กำหนดโครงร่างหลักของ algorithm ไว้ใน super class แต่เปิดให้ sub class ต่างๆ สามารถปรับแต่งขั้นตอนเฉพาะภายใน algorithm ของ sub class นั้นๆเองได้ โดยไม่ต้องเปลี่ยนแปลงโครงสร้างโดยรวมของ super class
+- Visitor รูปแบบการออกแบบเชิงพฤติกรรมที่ช่วยให้เราแยก algorithm ออกจาก object ที่ algorithm นั้นจะทำงานด้วยอยู่
+
+- รูปแบบ Chain of Responsibility
+- Chain of Responsibility pattern เป็น behavioral design pattern ที่อนุญาตให้ object ส่งต่อ request ไปตาม chain ของตัวจัดการ (handler) เมื่อได้รับ request มา handler แต่ละตัวจะมีสิทธิ์ในการตัดสินใจได้ว่ามันจะทำการประมวลผล request นั้นด้วยตัวมันเองเลยหรือจะส่งต่อ request นั้นไปให้กับ handler ตัวต่อไปใน chain ต่อไปเรื่อยๆแทน
+
+- Pattern นี้จะลดการ decouple ระหว่าง ผู้ส่ง request กับตัวที่รับ request ซึ่งเกิดขึ้นด้วยการเปิดโอกาสให้ Object มากกว่าหนึ่งตัวสามารถจัดการกับ request นั้นได้ ส่งเสริมหลักการของ principle of least knowledge ตรงที่ลดการ coupling ระหว่าง Class ต่างๆลงได้
+
+- โครงสร้างหลักของ Chain of Responsibility pattern โดยทั่วไปจะประกอบไปด้วยส่วนประกอบเหล่านี้
+
+- Handler (ผู้จัดการ) ทำหน้าที่นิยามส่วนติดต่อ (Interface) สำหรับจัดการกับ request และในบางกรณีก็จะทำการ implement ความเกี่ยวโยงระหว่าง handler ที่เป็น successor (ตัวที่ต่อกัน) ด้วย โดยที่ handler นี้มีสิทธิ์ที่จะตัดสินใจว่าจะจัดการกับ request ด้วยตัวของมันเอง หรือจะส่งต่อ request ไปให้ handler ตัวถัดไปใน chain ได้
+- Concrete Handler (ผู้จัดการแบบเฉพาะเจาะจง) ทำหน้าที่จัดการกับ requests ที่ตัวมันเองมีหน้าที่รับผิดชอบ อีกทั้งยังสามารถเข้าถึง successor ของมันได้อีกด้วย ถ้า Concrete Handler ตัวนั้นสามารถจัดการกับ request ได้มันก็จะทำ อันไหนทำไม่ได้มันก็จะส่งต่อ request นั้นให้ successor ของมันต่อไป
+- Client (ผู้ใช้) จะทำการเริ่มต้น request โดยส่งไปที่ Object Concrete Handler ที่เกี่ยวข้องใน chain เข้าไป
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Any, Optional
+
+
+class Handler(ABC):
+    """
+    The Handler interface declares a method for building the chain of handlers.
+    It also declares a method for executing a request.
+    """
+
+    @abstractmethod
+    def set_next(self, handler: Handler) -> Handler:
+        pass
+
+    @abstractmethod
+    def handle(self, request) -> Optional[str]:
+        pass
+
+
+class AbstractHandler(Handler):
+    """
+    The default chaining behavior can be implemented inside a base handler
+    class.
+    """
+
+    _next_handler: Handler = None
+
+    def set_next(self, handler: Handler) -> Handler:
+        self._next_handler = handler
+        # Returning a handler from here will let us link handlers in a
+        # convenient way like this:
+        # monkey.set_next(squirrel).set_next(dog)
+        return handler
+
+    @abstractmethod
+    def handle(self, request: Any) -> str:
+        if self._next_handler:
+            return self._next_handler.handle(request)
+
+        return None
+
+
+"""
+All Concrete Handlers either handle a request or pass it to the next handler in
+the chain.
+"""
+
+
+class MonkeyHandler(AbstractHandler):
+    def handle(self, request: Any) -> str:
+        if request == "Banana":
+            return f"Monkey: I'll eat the {request}"
+        else:
+            return super().handle(request)
+
+
+class SquirrelHandler(AbstractHandler):
+    def handle(self, request: Any) -> str:
+        if request == "Nut":
+            return f"Squirrel: I'll eat the {request}"
+        else:
+            return super().handle(request)
+
+
+class DogHandler(AbstractHandler):
+    def handle(self, request: Any) -> str:
+        if request == "MeatBall":
+            return f"Dog: I'll eat the {request}"
+        else:
+            return super().handle(request)
+
+
+def client_code(handler: Handler) -> None:
+    """
+    The client code is usually suited to work with a single handler. In most
+    cases, it is not even aware that the handler is part of a chain.
+    """
+
+    for food in ["Nut", "Banana", "Cup of coffee"]:
+        print(f"\nClient: Who wants a {food}?")
+        result = handler.handle(food)
+        if result:
+            print(f"  {result}", end="")
+        else:
+            print(f"  {food} was left untouched.", end="")
+
+
+if __name__ == "__main__":
+    monkey = MonkeyHandler()
+    squirrel = SquirrelHandler()
+    dog = DogHandler()
+
+    monkey.set_next(squirrel).set_next(dog)
+
+    # The client should be able to send a request to any handler, not just the
+    # first one in the chain.
+    print("Chain: Monkey > Squirrel > Dog")
+    client_code(monkey)
+    print("\n")
+
+    print("Subchain: Squirrel > Dog")
+    client_code(squirrel)
+```
+- Output
+```python
+Chain: Monkey > Squirrel > Dog
+
+Client: Who wants a Nut?
+  Squirrel: I'll eat the Nut
+Client: Who wants a Banana?
+  Monkey: I'll eat the Banana
+Client: Who wants a Cup of coffee?
+  Cup of coffee was left untouched.
+
+Subchain: Squirrel > Dog
+
+Client: Who wants a Nut?
+  Squirrel: I'll eat the Nut
+Client: Who wants a Banana?
+  Banana was left untouched.
+Client: Who wants a Cup of coffee?
+  Cup of coffee was left untouched.
+```
+
+- 2.รูปแบบ Command
+- Command pattern คือ behavioral design pattern รูปแบบหนึ่งที่เปลี่ยน request ธรรมดา ให้กลายเป็น object แบบ stand-alone ซึ่งภายใน object นั้นจะมีข้อมูลต่างๆ ของ request เก็บเอาไว้ การที่เราแปลงแบบนี้ทำให้เราสามารถใส่ request ต่างๆ เข้าไปใน method, ทำการหน่วงเวลา หรือจัดคิวของ request ได้ รวมถึงยังทำให้เราสามารถมีระบบ undo ที่สามารถย้อนกลับการทำงานได้ด้วย
+
+- การใช้ pattern นี้จะมีประโยชน์อย่างมากในการสร้างระบบ transaction ต่างๆ, การทำ log และ สถานการณ์ที่เราต้องออก request โดยที่เราอาจไม่รู้รายละเอียดของ operation ที่ request นั้นร้องขอ หรือไม่รู้ว่าใครจะเป็น receiver ของ request ตัวนั้น pattern นี้ก็จะสามารถดำเนินการสร้างในรูปแบบ object ออกเป็น request ออกมาก่อนได้
+
+- โดยทั่วไป Command pattern จะมี component หลักๆ ดังนี้
+
+- Command Interface interface ที่มีการประกาศ method ไว้สำหรับ execute command
+- Concrete Command เป็นส่วนที่ implement Command interface และมีการนิยามความสัมพันธ์ระหว่าง object Receiver กับ action ต่างๆ
+- Client เป็นส่วนที่สร้าง object Concrete Command และทำการกำหนดว่า ใครจะเป็น receiver
+- Invoker เป็นส่วนที่บอกให้ command ทำการ execute request
+- Receiver เป็นส่วนที่รู้ว่าต้องทำ operation อะไรบ้าง ที่สัมพันธ์กับการทำงานของ request นั้น โดยเราสามารถใช้ class ไหนก็ได้มาเป็น Receiver
+
+- ตัวอย่าง code
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Command(ABC):
+    """
+    The Command interface declares a method for executing a command.
+    """
+
+    @abstractmethod
+    def execute(self) -> None:
+        pass
+
+
+class SimpleCommand(Command):
+    """
+    Some commands can implement simple operations on their own.
+    """
+
+    def __init__(self, payload: str) -> None:
+        self._payload = payload
+
+    def execute(self) -> None:
+        print(f"SimpleCommand: See, I can do simple things like printing"
+              f"({self._payload})")
+
+
+class ComplexCommand(Command):
+    """
+    However, some commands can delegate more complex operations to other
+    objects, called "receivers."
+    """
+
+    def __init__(self, receiver: Receiver, a: str, b: str) -> None:
+        """
+        Complex commands can accept one or several receiver objects along with
+        any context data via the constructor.
+        """
+
+        self._receiver = receiver
+        self._a = a
+        self._b = b
+
+    def execute(self) -> None:
+        """
+        Commands can delegate to any methods of a receiver.
+        """
+
+        print("ComplexCommand: Complex stuff should be done by a receiver object", end="")
+        self._receiver.do_something(self._a)
+        self._receiver.do_something_else(self._b)
+
+
+class Receiver:
+    """
+    The Receiver classes contain some important business logic. They know how to
+    perform all kinds of operations, associated with carrying out a request. In
+    fact, any class may serve as a Receiver.
+    """
+
+    def do_something(self, a: str) -> None:
+        print(f"\nReceiver: Working on ({a}.)", end="")
+
+    def do_something_else(self, b: str) -> None:
+        print(f"\nReceiver: Also working on ({b}.)", end="")
+
+
+class Invoker:
+    """
+    The Invoker is associated with one or several commands. It sends a request
+    to the command.
+    """
+
+    _on_start = None
+    _on_finish = None
+
+    """
+    Initialize commands.
+    """
+
+    def set_on_start(self, command: Command):
+        self._on_start = command
+
+    def set_on_finish(self, command: Command):
+        self._on_finish = command
+
+    def do_something_important(self) -> None:
+        """
+        The Invoker does not depend on concrete command or receiver classes. The
+        Invoker passes a request to a receiver indirectly, by executing a
+        command.
+        """
+
+        print("Invoker: Does anybody want something done before I begin?")
+        if isinstance(self._on_start, Command):
+            self._on_start.execute()
+
+        print("Invoker: ...doing something really important...")
+
+        print("Invoker: Does anybody want something done after I finish?")
+        if isinstance(self._on_finish, Command):
+            self._on_finish.execute()
+
+
+if __name__ == "__main__":
+    """
+    The client code can parameterize an invoker with any commands.
+    """
+
+    invoker = Invoker()
+    invoker.set_on_start(SimpleCommand("Say Hi!"))
+    receiver = Receiver()
+    invoker.set_on_finish(ComplexCommand(
+        receiver, "Send email", "Save report"))
+
+    invoker.do_something_important()
+```
+- Output
+```python
+Invoker: Does anybody want something done before I begin?
+SimpleCommand: See, I can do simple things like printing (Say Hi!)
+Invoker: ...doing something really important...
+Invoker: Does anybody want something done after I finish?
+ComplexCommand: Complex stuff should be done by a receiver object
+Receiver: Working on (Send email.)
+Receiver: Also working on (Save report.)
+```
+
+- 3.รูปแบบ Iterator
+- Iterator pattern คือ behavioral design pattern ที่ให้วิธีการเข้าถึง element ต่างๆ ภายใน aggregate object โดยทำทีละตัว (sequentially) และไม่จำเป็นต้องเปิดเผยว่าจริงๆ แล้วข้างในเป็นอย่างไร
+
+- Pattern นี้ทำให้เราสามารถเดินทะลุ (traverse) object นั้นๆ ได้โดยไม่ต้องรู้เลยว่าภายใน object มีการเก็บข้อมูลไว้ในรูปแบบไหน โดยตัว pattern นี้จะทำการแยก algorithm ออกมาจาก operation ที่ทำโดยตัว object ซึ่งทำให้ algorithm เราสามารถทำงานได้โดยไม่ต้องรู้เลยว่า object นั้นจัดเก็บข้อมูลหรือทำงานอย่างไรได้
+
+- ส่วนประกอบหลักๆ ของ Iterator pattern
+
+- Iterator Interface นิยามว่าต้องมีรูปแบบการทำงานอย่างไรบ้าง ซึ่งจะรวมถึง method ไว้สำหรับการเข้าถึง element ณ ตอนนั้น, ย้ายไปที่ element ถัดไป, และเช็คว่ามี element เหลืออยู่ไหม
+- Concrete Iterator implement Iterator interface และเป็นส่วนที่คอยเก็บ state ว่าตอนนี้การเดินทางไปถึงไหนแล้ว และมีหน้าที่จัดการตำแหน่งล่าสุดของการทำ iteration
+- Aggregate Interface นิยาม interface สำหรับการสร้าง Iterator object
+- Concrete Aggregate implement Aggregate interface และเป็นส่วนที่คืนค่า Concrete Iterator ที่สอดคล้องกันออกมา
+
+```python
+from __future__ import annotations
+from collections.abc import Iterable, Iterator
+from typing import Any
+
+
+"""
+To create an iterator in Python, there are two abstract classes from the built-
+in `collections` module - Iterable,Iterator. We need to implement the
+`__iter__()` method in the iterated object (collection), and the `__next__ ()`
+method in theiterator.
+"""
+
+
+class AlphabeticalOrderIterator(Iterator):
+    """
+    Concrete Iterators implement various traversal algorithms. These classes
+    store the current traversal position at all times.
+    """
+
+    """
+    `_position` attribute stores the current traversal position. An iterator may
+    have a lot of other fields for storing iteration state, especially when it
+    is supposed to work with a particular kind of collection.
+    """
+    _position: int = None
+
+    """
+    This attribute indicates the traversal direction.
+    """
+    _reverse: bool = False
+
+    def __init__(self, collection: WordsCollection, reverse: bool = False) -> None:
+        self._collection = collection
+        self._reverse = reverse
+        self._position = -1 if reverse else 0
+
+    def __next__(self) -> Any:
+        """
+        The __next__() method must return the next item in the sequence. On
+        reaching the end, and in subsequent calls, it must raise StopIteration.
+        """
+        try:
+            value = self._collection[self._position]
+            self._position += -1 if self._reverse else 1
+        except IndexError:
+            raise StopIteration()
+
+        return value
+
+
+class WordsCollection(Iterable):
+    """
+    Concrete Collections provide one or several methods for retrieving fresh
+    iterator instances, compatible with the collection class.
+    """
+
+    def __init__(self, collection: list[Any] | None = None) -> None:
+        self._collection = collection or []
+
+
+    def __getitem__(self, index: int) -> Any:
+        return self._collection[index]
+
+    def __iter__(self) -> AlphabeticalOrderIterator:
+        """
+        The __iter__() method returns the iterator object itself, by default we
+        return the iterator in ascending order.
+        """
+        return AlphabeticalOrderIterator(self)
+
+    def get_reverse_iterator(self) -> AlphabeticalOrderIterator:
+        return AlphabeticalOrderIterator(self, True)
+
+    def add_item(self, item: Any) -> None:
+        self._collection.append(item)
+
+
+if __name__ == "__main__":
+    # The client code may or may not know about the Concrete Iterator or
+    # Collection classes, depending on the level of indirection you want to keep
+    # in your program.
+    collection = WordsCollection()
+    collection.add_item("First")
+    collection.add_item("Second")
+    collection.add_item("Third")
+
+    print("Straight traversal:")
+    print("\n".join(collection))
+    print("")
+
+    print("Reverse traversal:")
+    print("\n".join(collection.get_reverse_iterator()), end="")
+```
+
+```python
+Straight traversal:
+First
+Second
+Third
+
+Reverse traversal:
+Third
+Second
+First
+```
+
+
+- 4.รูปแบบ Mediator
+- Mediator pattern คือ behavioral design pattern ที่จะมาช่วยจัดเตรียม interface แบบรวมศูนย์ สำหรับจัดการชุดของ interfaces อื่นๆ ใน subsystem โดย pattern นี้จะนิยาม object ตัวหนึ่งขึ้นมา เพื่อห่อหุ้ม (encapsulate) ว่าจริงๆ แล้ว object กลุ่มนั้นมีการพูดคุยกันอย่างไรได้บ้าง
+
+- ด้วยวิธีนี้เราจะทำให้เกิดการทำ loose coupling โดยที่ object เหล่านั้นไม่จำเป็นต้องอ้างอิงหากันตรงๆ ซึ่งตัว mediator จะทำหน้าที่เป็นตัวกลางในการควบคุมกลุ่ม object เหล่านั้น ในแง่ว่าจะ interact กันอย่างไรหรือตอนไหนออกมาได้
+
+- ส่วนประกอบหลักของ Mediator pattern มีดังนี้:
+
+- Mediator Interface นิยาม interface ที่ใช้ในการสื่อสารกับ object Colleague ต่างๆ
+- Concrete Mediator มีการ implement Mediator interface และทำหน้าที่ประสานงานการสื่อสารระหว่าง object Colleague ด้วยกัน โดยตัวนี้จะรู้จักและเก็บ reference ของ colleagues ต่างๆ เอาไว้
+- Colleague (หรือ Participant) นิยาม interface ของการสื่อสารที่ต้องผ่านการจัดการโดย Mediator โดย Colleague แต่ละตัวจะรู้ว่า Mediator ของตัวเองคือใคร
+- Concrete Colleague ตัวที่ทำให้ Colleague สามารถสื่อสารหากันได้ (แทนที่จะต้องไปคุยกันเอง)
+
+```python
+from __future__ import annotations
+from abc import ABC
+
+
+class Mediator(ABC):
+    """
+    The Mediator interface declares a method used by components to notify the
+    mediator about various events. The Mediator may react to these events and
+    pass the execution to other components.
+    """
+
+    def notify(self, sender: object, event: str) -> None:
+        pass
+
+
+class ConcreteMediator(Mediator):
+    def __init__(self, component1: Component1, component2: Component2) -> None:
+        self._component1 = component1
+        self._component1.mediator = self
+        self._component2 = component2
+        self._component2.mediator = self
+
+    def notify(self, sender: object, event: str) -> None:
+        if event == "A":
+            print("Mediator reacts on A and triggers following operations:")
+            self._component2.do_c()
+        elif event == "D":
+            print("Mediator reacts on D and triggers following operations:")
+            self._component1.do_b()
+            self._component2.do_c()
+
+
+class BaseComponent:
+    """
+    The Base Component provides the basic functionality of storing a mediator's
+    instance inside component objects.
+    """
+
+    def __init__(self, mediator: Mediator = None) -> None:
+        self._mediator = mediator
+
+    @property
+    def mediator(self) -> Mediator:
+        return self._mediator
+
+    @mediator.setter
+    def mediator(self, mediator: Mediator) -> None:
+        self._mediator = mediator
+
+
+"""
+Concrete Components implement various functionality. They don't depend on other
+components. They also don't depend on any concrete mediator classes.
+"""
+
+
+class Component1(BaseComponent):
+    def do_a(self) -> None:
+        print("Component 1 does A.")
+        self.mediator.notify(self, "A")
+
+    def do_b(self) -> None:
+        print("Component 1 does B.")
+        self.mediator.notify(self, "B")
+
+
+class Component2(BaseComponent):
+    def do_c(self) -> None:
+        print("Component 2 does C.")
+        self.mediator.notify(self, "C")
+
+    def do_d(self) -> None:
+        print("Component 2 does D.")
+        self.mediator.notify(self, "D")
+
+
+if __name__ == "__main__":
+    # The client code.
+    c1 = Component1()
+    c2 = Component2()
+    mediator = ConcreteMediator(c1, c2)
+
+    print("Client triggers operation A.")
+    c1.do_a()
+
+    print("\n", end="")
+
+    print("Client triggers operation D.")
+    c2.do_d()
+
+```
+
+```python
+Client triggers operation A.
+Component 1 does A.
+Mediator reacts on A and triggers following operations:
+Component 2 does C.
+
+
+Client triggers operation D.
+Component 2 does D.
+Mediator reacts on D and triggers following operations:
+Component 1 does B.
+Component 2 does C.
+```
+
+- 5.รูปแบบ Memento
+- Memento pattern เป็น behavioral design pattern ที่ทำให้เราสามารถเปลี่ยน object ให้กลับไปเป็น state ก่อนหน้าได้ (เหมือน undo หรือ rollback) จุดประสงค์หลักของการใช้ pattern นี้คือการเก็บ (capture) และดึง internal state ของ object ออกมา เพื่อที่เราจะได้เอากลับมาใช้เปลี่ยน object นั้นกลับไปเป็น state นั้นใหม่อีกรอบได้ ในขณะที่เรายังสามารถคงคุณสมบัติ encapsulation ของ OOP เอาไว้ได้เช่นเดิม โดย pattern นี้มีประโยชน์อย่างมากในการทำพวก undo mechanism ใน application ต่างๆได้
+
+- ส่วนประกอบหลักของ Memento pattern มีดังนี้
+
+- Originator object ที่ต้องการจะ save และเรียกคืน (restore) state ตัว Originator จะสร้าง memento ซึ่งจะมี snapshot ของ internal state ณ ตอนนั้นๆ อยู่ข้างใน และใช้เจ้า memento นี้ในการเปลี่ยน state ของตัวเองกลับไปเหมือนเดิม
+- Memento object ที่คอยเก็บ state ของ originator เอาไว้ โดยปกติแล้วการที่ structure ข้างในเป็นอย่างไรนั้นจะถูกซ่อนเอาไว้ และจะมีแค่ originator เท่านั้นที่รู้
+- Caretaker object ที่คอยเก็บ memento ไว้หลายๆ อัน โดยจะ คอยบันทึก state ของ originator ผ่าน memento แต่มันจะไม่ทำงาน หรือเข้าถึงข้อมูลภายใน memento (มองง่ายๆเหมือน History นั่นแหละ)
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from datetime import datetime
+from random import sample
+from string import ascii_letters
+
+
+class Originator:
+    """
+    The Originator holds some important state that may change over time. It also
+    defines a method for saving the state inside a memento and another method
+    for restoring the state from it.
+    """
+
+    _state = None
+    """
+    For the sake of simplicity, the originator's state is stored inside a single
+    variable.
+    """
+
+    def __init__(self, state: str) -> None:
+        self._state = state
+        print(f"Originator: My initial state is: {self._state}")
+
+    def do_something(self) -> None:
+        """
+        The Originator's business logic may affect its internal state.
+        Therefore, the client should backup the state before launching methods
+        of the business logic via the save() method.
+        """
+
+        print("Originator: I'm doing something important.")
+        self._state = self._generate_random_string(30)
+        print(f"Originator: and my state has changed to: {self._state}")
+
+    @staticmethod
+    def _generate_random_string(length: int = 10) -> str:
+        return "".join(sample(ascii_letters, length))
+
+    def save(self) -> Memento:
+        """
+        Saves the current state inside a memento.
+        """
+
+        return ConcreteMemento(self._state)
+
+    def restore(self, memento: Memento) -> None:
+        """
+        Restores the Originator's state from a memento object.
+        """
+
+        self._state = memento.get_state()
+        print(f"Originator: My state has changed to: {self._state}")
+
+
+class Memento(ABC):
+    """
+    The Memento interface provides a way to retrieve the memento's metadata,
+    such as creation date or name. However, it doesn't expose the Originator's
+    state.
+    """
+
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_date(self) -> str:
+        pass
+
+
+class ConcreteMemento(Memento):
+    def __init__(self, state: str) -> None:
+        self._state = state
+        self._date = str(datetime.now())[:19]
+
+    def get_state(self) -> str:
+        """
+        The Originator uses this method when restoring its state.
+        """
+        return self._state
+
+    def get_name(self) -> str:
+        """
+        The rest of the methods are used by the Caretaker to display metadata.
+        """
+
+        return f"{self._date} / ({self._state[0:9]}...)"
+
+    def get_date(self) -> str:
+        return self._date
+
+
+class Caretaker:
+    """
+    The Caretaker doesn't depend on the Concrete Memento class. Therefore, it
+    doesn't have access to the originator's state, stored inside the memento. It
+    works with all mementos via the base Memento interface.
+    """
+
+    def __init__(self, originator: Originator) -> None:
+        self._mementos = []
+        self._originator = originator
+
+    def backup(self) -> None:
+        print("\nCaretaker: Saving Originator's state...")
+        self._mementos.append(self._originator.save())
+
+    def undo(self) -> None:
+        if not len(self._mementos):
+            return
+
+        memento = self._mementos.pop()
+        print(f"Caretaker: Restoring state to: {memento.get_name()}")
+        try:
+            self._originator.restore(memento)
+        except Exception:
+            self.undo()
+
+    def show_history(self) -> None:
+        print("Caretaker: Here's the list of mementos:")
+        for memento in self._mementos:
+            print(memento.get_name())
+
+
+if __name__ == "__main__":
+    originator = Originator("Super-duper-super-puper-super.")
+    caretaker = Caretaker(originator)
+
+    caretaker.backup()
+    originator.do_something()
+
+    caretaker.backup()
+    originator.do_something()
+
+    caretaker.backup()
+    originator.do_something()
+
+    print()
+    caretaker.show_history()
+
+    print("\nClient: Now, let's rollback!\n")
+    caretaker.undo()
+
+    print("\nClient: Once more!\n")
+    caretaker.undo()
+```
+
+```python
+Originator: My initial state is: Super-duper-super-puper-super.
+
+Caretaker: Saving Originator's state...
+Originator: I'm doing something important.
+Originator: and my state has changed to: wQAehHYOqVSlpEXjyIcgobrxsZUnat
+
+Caretaker: Saving Originator's state...
+Originator: I'm doing something important.
+Originator: and my state has changed to: lHxNORKcsgMWYnJqoXjVCbQLEIeiSp
+
+Caretaker: Saving Originator's state...
+Originator: I'm doing something important.
+Originator: and my state has changed to: cvIYsRilNOtwynaKdEZpDCQkFAXVMf
+
+Caretaker: Here's the list of mementos:
+2019-01-26 21:11:24 / (Super-dup...)
+2019-01-26 21:11:24 / (wQAehHYOq...)
+2019-01-26 21:11:24 / (lHxNORKcs...)
+
+Client: Now, let's rollback!
+
+Caretaker: Restoring state to: 2019-01-26 21:11:24 / (lHxNORKcs...)
+Originator: My state has changed to: lHxNORKcsgMWYnJqoXjVCbQLEIeiSp
+
+Client: Once more!
+
+Caretaker: Restoring state to: 2019-01-26 21:11:24 / (wQAehHYOq...)
+Originator: My state has changed to: wQAehHYOqVSlpEXjyIcgobrxsZUnat
+```
+
+- 6. รูปแบบ Observer
+- Observer pattern เป็น behavioral design pattern โดยจะมี object หนึ่งตัวเป็น subject คอยเก็บ list ของตัว observer ไว้ เวลาที่มีการเปลี่ยนแปลง state ใดๆ subject จะทำการแจ้ง (notify) ไปยัง observers ทั้งหมดแบบอัตโนมัติ (โดยปกติแล้ววิธีการแจ้งจะเป็นการเรียก method ของ observers นั้นๆ ซึ่งนี่ถือเป็นรูปแบบพื้นฐานของ publish-subscribe เลยก็ว่าได้) เพื่อให้สามารถรับรู้ (observe) และตอบสนองกับเหตุการณ์ (event) ใน object อื่นๆ โดยที่ทั้งหมดนี้เราไม่จำเป็นต้องมา coupling ระหว่าง object เหล่านั้นเลยได้ (ต่างคนต่างจัดการแค่คุยผ่านสัญญาณออกมาพอ)
+
+- ส่วนประกอบหลักของ Observer pattern มีดังนี้
+
+- Subject เป็นตัวเก็บ list ของ observers ไว้ และจะมี method ไว้เพิ่ม ลบ และแจ้ง observers
+- Observer จะเป็น interface หรือ abstract class ที่นิยาม method (ชื่อ update) เอาไว้ โดย update method นี้จะถูก subject เรียกเพื่อแจ้ง observers เวลามี state เปลี่ยน
+- Concrete Subject จะ implement subject interface และเก็บ state ของตัวเอง ซึ่งในตอนที่มีการเปลี่ยนแปลง state นั้นเองที่จะมีการแจ้งไปยัง observers ทั้งหมด
+- Concrete Observer จะ implement observer interface และเก็บ reference ของ subject เอาไว้ เพื่อที่ว่าตัวมันเองจะ update ตัวเองได้แบบอัตโนมัติ ตอนได้รับแจ้งว่า state มีการเปลี่ยนแปลง
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from random import randrange
+from typing import List
+
+
+class Subject(ABC):
+    """
+    The Subject interface declares a set of methods for managing subscribers.
+    """
+
+    @abstractmethod
+    def attach(self, observer: Observer) -> None:
+        """
+        Attach an observer to the subject.
+        """
+        pass
+
+    @abstractmethod
+    def detach(self, observer: Observer) -> None:
+        """
+        Detach an observer from the subject.
+        """
+        pass
+
+    @abstractmethod
+    def notify(self) -> None:
+        """
+        Notify all observers about an event.
+        """
+        pass
+
+
+class ConcreteSubject(Subject):
+    """
+    The Subject owns some important state and notifies observers when the state
+    changes.
+    """
+
+    _state: int = None
+    """
+    For the sake of simplicity, the Subject's state, essential to all
+    subscribers, is stored in this variable.
+    """
+
+    _observers: List[Observer] = []
+    """
+    List of subscribers. In real life, the list of subscribers can be stored
+    more comprehensively (categorized by event type, etc.).
+    """
+
+    def attach(self, observer: Observer) -> None:
+        print("Subject: Attached an observer.")
+        self._observers.append(observer)
+
+    def detach(self, observer: Observer) -> None:
+        self._observers.remove(observer)
+
+    """
+    The subscription management methods.
+    """
+
+    def notify(self) -> None:
+        """
+        Trigger an update in each subscriber.
+        """
+
+        print("Subject: Notifying observers...")
+        for observer in self._observers:
+            observer.update(self)
+
+    def some_business_logic(self) -> None:
+        """
+        Usually, the subscription logic is only a fraction of what a Subject can
+        really do. Subjects commonly hold some important business logic, that
+        triggers a notification method whenever something important is about to
+        happen (or after it).
+        """
+
+        print("\nSubject: I'm doing something important.")
+        self._state = randrange(0, 10)
+
+        print(f"Subject: My state has just changed to: {self._state}")
+        self.notify()
+
+
+class Observer(ABC):
+    """
+    The Observer interface declares the update method, used by subjects.
+    """
+
+    @abstractmethod
+    def update(self, subject: Subject) -> None:
+        """
+        Receive update from subject.
+        """
+        pass
+
+
+"""
+Concrete Observers react to the updates issued by the Subject they had been
+attached to.
+"""
+
+
+class ConcreteObserverA(Observer):
+    def update(self, subject: Subject) -> None:
+        if subject._state < 3:
+            print("ConcreteObserverA: Reacted to the event")
+
+
+class ConcreteObserverB(Observer):
+    def update(self, subject: Subject) -> None:
+        if subject._state == 0 or subject._state >= 2:
+            print("ConcreteObserverB: Reacted to the event")
+
+
+if __name__ == "__main__":
+    # The client code.
+
+    subject = ConcreteSubject()
+
+    observer_a = ConcreteObserverA()
+    subject.attach(observer_a)
+
+    observer_b = ConcreteObserverB()
+    subject.attach(observer_b)
+
+    subject.some_business_logic()
+    subject.some_business_logic()
+
+    subject.detach(observer_a)
+
+    subject.some_business_logic()
+```
+
+```python
+Subject: Attached an observer.
+Subject: Attached an observer.
+
+Subject: I'm doing something important.
+Subject: My state has just changed to: 0
+Subject: Notifying observers...
+ConcreteObserverA: Reacted to the event
+ConcreteObserverB: Reacted to the event
+
+Subject: I'm doing something important.
+Subject: My state has just changed to: 5
+Subject: Notifying observers...
+ConcreteObserverB: Reacted to the event
+
+Subject: I'm doing something important.
+Subject: My state has just changed to: 0
+Subject: Notifying observers...
+ConcreteObserverB: Reacted to the event
+```
+
+- 7. รูปแบบ State
+- State pattern เป็น behavioral design pattern ที่จะทำให้ object หนึ่งมีความสามารถในการเปลี่ยนแปลงพฤติกรรม เมื่อ internal state ของมันเปลี่ยน การเปลี่ยนแปลงนี้ ถ้าดูจากภายนอกแล้วจะเหมือนกับว่า object ตัวนั้นเปลี่ยน class ของมันไปเลยก็ว่าได้
+
+- จุดเด่นของ pattern นี้คือจะห่อหุ้ม (encapsulate) พฤติกรรมต่างๆ ของ function ชุดหนึ่งๆเอาไว้ให้ขึ้นกับชนิดของ state object ซึ่งก็คือตัวแทนของ state ณ ตอนนั้นๆ และสิ่งนี้เองที่ทำให้พฤติกรรมของ object สามารถเปลี่ยนแปลงได้แบบ dynamic ตาม state ออกมาได้
+
+- ส่วนประกอบหลักของ State pattern มีดังนี้
+
+- Context เป็นตัวเก็บ instance ของ ConcreteState subclass ซึ่งจะนิยามว่าตอนนี้ state เป็นอะไร
+- State Interface เป็นตัวนิยาม interface ที่ไว้ห่อหุ้มพฤติกรรมต่างๆ ที่สัมพันธ์กับ state นั้นๆ ของ Context
+- Concrete States implement State interface และจะมีการใส่ logic เข้าไป เพื่อให้ได้ action เฉพาะเจาะจงออกมา ซึ่งจะเห็นได้ว่าพฤติกรรมของ Context object นั้นจะเปลี่ยนไปตาม state object ที่เปลี่ยนแปลง
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Context:
+    """
+    The Context defines the interface of interest to clients. It also maintains
+    a reference to an instance of a State subclass, which represents the current
+    state of the Context.
+    """
+
+    _state = None
+    """
+    A reference to the current state of the Context.
+    """
+
+    def __init__(self, state: State) -> None:
+        self.transition_to(state)
+
+    def transition_to(self, state: State):
+        """
+        The Context allows changing the State object at runtime.
+        """
+
+        print(f"Context: Transition to {type(state).__name__}")
+        self._state = state
+        self._state.context = self
+
+    """
+    The Context delegates part of its behavior to the current State object.
+    """
+
+    def request1(self):
+        self._state.handle1()
+
+    def request2(self):
+        self._state.handle2()
+
+
+class State(ABC):
+    """
+    The base State class declares methods that all Concrete State should
+    implement and also provides a backreference to the Context object,
+    associated with the State. This backreference can be used by States to
+    transition the Context to another State.
+    """
+
+    @property
+    def context(self) -> Context:
+        return self._context
+
+    @context.setter
+    def context(self, context: Context) -> None:
+        self._context = context
+
+    @abstractmethod
+    def handle1(self) -> None:
+        pass
+
+    @abstractmethod
+    def handle2(self) -> None:
+        pass
+
+
+"""
+Concrete States implement various behaviors, associated with a state of the
+Context.
+"""
+
+
+class ConcreteStateA(State):
+    def handle1(self) -> None:
+        print("ConcreteStateA handles request1.")
+        print("ConcreteStateA wants to change the state of the context.")
+        self.context.transition_to(ConcreteStateB())
+
+    def handle2(self) -> None:
+        print("ConcreteStateA handles request2.")
+
+
+class ConcreteStateB(State):
+    def handle1(self) -> None:
+        print("ConcreteStateB handles request1.")
+
+    def handle2(self) -> None:
+        print("ConcreteStateB handles request2.")
+        print("ConcreteStateB wants to change the state of the context.")
+        self.context.transition_to(ConcreteStateA())
+
+
+if __name__ == "__main__":
+    # The client code.
+
+    context = Context(ConcreteStateA())
+    context.request1()
+    context.request2()
+```
+
+```python
+Context: Transition to ConcreteStateA
+ConcreteStateA handles request1.
+ConcreteStateA wants to change the state of the context.
+Context: Transition to ConcreteStateB
+ConcreteStateB handles request2.
+ConcreteStateB wants to change the state of the context.
+Context: Transition to ConcreteStateA
+```
+
+- 8. รูปแบบ Strategy
+- Strategy pattern เป็น behavioral design pattern ที่ทำให้เราสามารถเลือกพฤติกรรมของ algorithm ตอน runtime ได้ โดยที่แทนที่เราจะ implement algorithm โดยตรง code strategry สามารถทำให้ code ได้รับ instruction ตอน runtime ว่าจะต้องใช้ algorithm ไหนในกลุ่มของ algorithms ทั้งหมดที่เรามีได้ (อารมณ์เตรียมวิธีการแต่ละแบบเอาไว้ แต่เรียกใช้จริงเป็นแบบไหนก็ขึ้นอยู่กับ case ตอนนั้น)
+
+- Pattern นี้จะนิยามกลุ่ม (family) ของ algorithms แล้วทำการห่อหุ้ม (encapsulates) แต่ละแบบแยกจากกัน และทำให้สามารถสลับเปลี่ยนกันได้ภายในกลุ่มเดียวกัน ซึ่งจุดเด่นของ Strategy ก็คือจะทำให้ algorithm ของเรานั้นเป็นอิสระจาก clients ที่ใช้มันอยู่ได้
+
+- ส่วนประกอบหลักของ Strategy pattern มีดังนี้
+
+- Context เป็นตัวที่จะเก็บ reference ที่ชี้ไปยัง concrete strategies ตัวหนึ่งๆ และ Context ตัวนี้จะติดต่อกับ strategy ที่มันชี้ไปถึงอยู่ ผ่าน strategy interface เท่านั้น
+- Strategy Interface เป็นตัวประกาศว่า algorithms อื่นๆ จะต้องมี interface แบบนี้ ซึ่ง Context จะใช้อันนี้ในการเรียก algorithm ที่นิยามไว้ใน Concrete Strategy
+- Concrete Strategies implement strategy interface และทำหน้าที่ implement ตัว algorithm จริงๆ เวลาที่ Context ต้องการใช้ algorithm ไหน จะต้องมาเรียกพวก concrete strategy ให้จัดเตรียมการทำงานของ logic ข้างในให้เรียบร้อย
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List
+
+
+class Context():
+    """
+    The Context defines the interface of interest to clients.
+    """
+
+    def __init__(self, strategy: Strategy) -> None:
+        """
+        Usually, the Context accepts a strategy through the constructor, but
+        also provides a setter to change it at runtime.
+        """
+
+        self._strategy = strategy
+
+    @property
+    def strategy(self) -> Strategy:
+        """
+        The Context maintains a reference to one of the Strategy objects. The
+        Context does not know the concrete class of a strategy. It should work
+        with all strategies via the Strategy interface.
+        """
+
+        return self._strategy
+
+    @strategy.setter
+    def strategy(self, strategy: Strategy) -> None:
+        """
+        Usually, the Context allows replacing a Strategy object at runtime.
+        """
+
+        self._strategy = strategy
+
+    def do_some_business_logic(self) -> None:
+        """
+        The Context delegates some work to the Strategy object instead of
+        implementing multiple versions of the algorithm on its own.
+        """
+
+        # ...
+
+        print("Context: Sorting data using the strategy (not sure how it'll do it)")
+        result = self._strategy.do_algorithm(["a", "b", "c", "d", "e"])
+        print(",".join(result))
+
+        # ...
+
+
+class Strategy(ABC):
+    """
+    The Strategy interface declares operations common to all supported versions
+    of some algorithm.
+
+    The Context uses this interface to call the algorithm defined by Concrete
+    Strategies.
+    """
+
+    @abstractmethod
+    def do_algorithm(self, data: List):
+        pass
+
+
+"""
+Concrete Strategies implement the algorithm while following the base Strategy
+interface. The interface makes them interchangeable in the Context.
+"""
+
+
+class ConcreteStrategyA(Strategy):
+    def do_algorithm(self, data: List) -> List:
+        return sorted(data)
+
+
+class ConcreteStrategyB(Strategy):
+    def do_algorithm(self, data: List) -> List:
+        return reversed(sorted(data))
+
+
+if __name__ == "__main__":
+    # The client code picks a concrete strategy and passes it to the context.
+    # The client should be aware of the differences between strategies in order
+    # to make the right choice.
+
+    context = Context(ConcreteStrategyA())
+    print("Client: Strategy is set to normal sorting.")
+    context.do_some_business_logic()
+    print()
+
+    print("Client: Strategy is set to reverse sorting.")
+    context.strategy = ConcreteStrategyB()
+    context.do_some_business_logic()
+```
+
+```python
+Client: Strategy is set to normal sorting.
+Context: Sorting data using the strategy (not sure how it'll do it)
+a,b,c,d,e
+
+Client: Strategy is set to reverse sorting.
+Context: Sorting data using the strategy (not sure how it'll do it)
+e,d,c,b,a
+```
+
+- 9.รูปแบบ Template Method
+- Template Method pattern นั้นเป็น behavioral design pattern ที่เป็นตัวกำหนดโครงสร้าง (skeleton) ของ algorithm โดยโครงสร้างนี้จะอยู่ใน superclass แต่จะทำให้ subclasses สามารถแก้ไข (override) บางขั้นตอนที่เฉพาะเจาะจงใน algorithm นั้นได้ โดยที่จะไม่ไปเปลี่ยนแปลงโครงสร้างทั้งหมดออกมาได้
+
+- การใช้งานนี้ดีตรงที่เราจะสามารถนำ algorithm ตัวเดิมที่ไม่ได้ขึ้นตรงกับ Class โดยตรงกลับมาใช้ใหม่ได้ และมั่นใจว่าโครงสร้างทั้งหมดจะยังคงเหมือนเดิมได้ ในขณะที่เราสามารถปล่อยให้ subclasses นั้นๆ เข้ามาสร้างพฤติกรรมที่ตรงกับแต่ละขั้นตอนเพิ่มเติมได้
+
+- ส่วนประกอบหลักของ Template Method pattern มีดังนี้
+
+- Abstract Class (Template) จะนิยาม abstract methods ไว้สำหรับขั้นตอนต่างๆ ที่จะต้องมีใน algorithm นอกจากนี้ยังต้องมีการ implement template method ไว้ด้วยเพื่อกำหนดโครงสร้าง (skeleton) ของ algorithm ซึ่งจะมีการเรียก abstract methods ต่างๆ ที่ subclass จะต้องไป implement
+- Concrete Classes ทำการ implement abstract methods ต่างๆ ที่อยู่ใน superclass เพื่อเพิ่มการทำงานจริงที่อยู่ในแต่ละขั้นตอนของ algorithm เข้าไปได้ โดยที่โครงสร้างทั้งหมดและลำดับขั้นตอนจะถูกควบคุมอยู่ที่ superclass แทน
+
+```python
+from abc import ABC, abstractmethod
+
+
+class AbstractClass(ABC):
+    """
+    The Abstract Class defines a template method that contains a skeleton of
+    some algorithm, composed of calls to (usually) abstract primitive
+    operations.
+
+    Concrete subclasses should implement these operations, but leave the
+    template method itself intact.
+    """
+
+    def template_method(self) -> None:
+        """
+        The template method defines the skeleton of an algorithm.
+        """
+
+        self.base_operation1()
+        self.required_operations1()
+        self.base_operation2()
+        self.hook1()
+        self.required_operations2()
+        self.base_operation3()
+        self.hook2()
+
+    # These operations already have implementations.
+
+    def base_operation1(self) -> None:
+        print("AbstractClass says: I am doing the bulk of the work")
+
+    def base_operation2(self) -> None:
+        print("AbstractClass says: But I let subclasses override some operations")
+
+    def base_operation3(self) -> None:
+        print("AbstractClass says: But I am doing the bulk of the work anyway")
+
+    # These operations have to be implemented in subclasses.
+
+    @abstractmethod
+    def required_operations1(self) -> None:
+        pass
+
+    @abstractmethod
+    def required_operations2(self) -> None:
+        pass
+
+    # These are "hooks." Subclasses may override them, but it's not mandatory
+    # since the hooks already have default (but empty) implementation. Hooks
+    # provide additional extension points in some crucial places of the
+    # algorithm.
+
+    def hook1(self) -> None:
+        pass
+
+    def hook2(self) -> None:
+        pass
+
+
+class ConcreteClass1(AbstractClass):
+    """
+    Concrete classes have to implement all abstract operations of the base
+    class. They can also override some operations with a default implementation.
+    """
+
+    def required_operations1(self) -> None:
+        print("ConcreteClass1 says: Implemented Operation1")
+
+    def required_operations2(self) -> None:
+        print("ConcreteClass1 says: Implemented Operation2")
+
+
+class ConcreteClass2(AbstractClass):
+    """
+    Usually, concrete classes override only a fraction of base class'
+    operations.
+    """
+
+    def required_operations1(self) -> None:
+        print("ConcreteClass2 says: Implemented Operation1")
+
+    def required_operations2(self) -> None:
+        print("ConcreteClass2 says: Implemented Operation2")
+
+    def hook1(self) -> None:
+        print("ConcreteClass2 says: Overridden Hook1")
+
+
+def client_code(abstract_class: AbstractClass) -> None:
+    """
+    The client code calls the template method to execute the algorithm. Client
+    code does not have to know the concrete class of an object it works with, as
+    long as it works with objects through the interface of their base class.
+    """
+
+    # ...
+    abstract_class.template_method()
+    # ...
+
+
+if __name__ == "__main__":
+    print("Same client code can work with different subclasses:")
+    client_code(ConcreteClass1())
+    print("")
+
+    print("Same client code can work with different subclasses:")
+    client_code(ConcreteClass2())
+```
+
+```python
+Same client code can work with different subclasses:
+AbstractClass says: I am doing the bulk of the work
+ConcreteClass1 says: Implemented Operation1
+AbstractClass says: But I let subclasses override some operations
+ConcreteClass1 says: Implemented Operation2
+AbstractClass says: But I am doing the bulk of the work anyway
+
+Same client code can work with different subclasses:
+AbstractClass says: I am doing the bulk of the work
+ConcreteClass2 says: Implemented Operation1
+AbstractClass says: But I let subclasses override some operations
+ConcreteClass2 says: Overridden Hook1
+ConcreteClass2 says: Implemented Operation2
+AbstractClass says: But I am doing the bulk of the work anyway
+```
