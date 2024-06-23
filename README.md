@@ -728,3 +728,863 @@ id(deep_copied_component.some_circular_ref.parent.some_circular_ref.parent): 442
 ^^ This shows that deepcopied objects contain same reference, they are not cloned repeatedly.
 ```
 
+- Design Pattern Structural คืออะไร ?
+- Design Pattern Structural เป็นหนึ่งในหมวดหมู่ของ Design Patterns ที่มุ่งเน้นไปที่วิธีการจัดการและประกอบความสัมพันธ์ระหว่าง Object และ Class โดยทำให้โปรแกรมมีความยืดหยุ่นและสามารถรองรับการเปลี่ยนแปลงได้ง่ายขึ้น ซึ่งประกอบด้วย 7 รูปแบบหลัก ได้แก่ Adapter, Bridge, Composite, Decorator, Facade, Flyweight, และ Proxy แต่ละแบบมีคุณสมบัติดังนี้
+
+- Adapter - ปรับให้ interface ของ Class ที่ไม่เข้ากันสามารถทำงานร่วมกันได้ โดยไม่ต้องเปลี่ยนแปลง code ที่มีอยู่ของทั้งสองฝ่าย (Class ผู้สร้างและ instance ที่ใช้) เหมือนกับการใช้ adapter ในชีวิตจริงเพื่อให้ปลั๊กไฟจากประเทศหนึ่งเข้ากับปลั๊กของประเทศอื่นได้
+- Bridge - แยก abstraction (interface) จาก implementation ของมันเอง เพื่อให้ทั้งสอง (ที่เคยอยู่ใน class เดียวกัน) สามารถเปลี่ยนแปลงได้อย่างอิสระต่อกันได้ (แทนที่จะต้องสร้าง class กับทุกๆประเภทออกมาแทน)
+- Composite - การประกอบ Object ในรูปแบบ tree เพื่อทำให้สามารถสร้าง Object ทั้งแบบตัวเอง และ แบบภายในตัวของมันเอง (แบบกลุ่ม) ออกมาได้
+- Decorator - เพิ่ม method ใหม่ให้กับ Object ตัวนั้นๆ โดยไม่เปลี่ยนแปลง Class และ bahavior ของ Object อื่นๆที่เรียกใช้ class นั้นอยู่ (เป็นการเพิ่ม function ให้กับ object ขณะเรียกใช้งาน)
+- Facade - คือการสร้าง interface ที่คุยกับ complex system ของ class, library หรือ framework (subsystem ทั้งหลาย) เพื่อเป็นการรวมการพูดคุยมาไว้ภายใน interface ตัวเดียวออกมาแทน
+- Flyweight - Pattern ที่ใช้สำหรับลดการใช้ memory ด้วยการ share data ระหว่าง object ที่ใช้งานเหมือนๆกันออกมา มักใช้กับเหตุการณ์ที่ต้องมีการสร้าง object จำนวนมากขึ้นมา (จุดประสงค์เพื่อเป็นการลดการ instance object จำนวนมากให้เกิดขึ้นใน memory ขึ้นมา)
+- Proxy - Pattern ที่จะทำการสร้าง object เป็นตัวแทนของการพูดคุยกับ object อื่นแทนการ access ตรงๆ เพื่อให้สามารถควบคุมการจัดการกับ object ที่เป็นเป้าหมายการเรียกใช้ออกมาได้ (เช่น ควบคุมการ access, ควบคุมการสร้าง, การทำ cache หรือ lazy initialization เป็นต้น)
+
+- รูปแบบ Adapter
+- Adapter pattern (บางที่ก็จะใช้คำว่า Wrapper pattern) คือ design pattern ที่อนุญาตให้ object ที่ไม่สามารถใช้งานร่วมกันได้ สามารถใช้งานร่วมกันได้ ซึ่งเบื้องหลังของการใช้ Adapter pattern คือการสร้างตัวที่เป็นเหมือนตัวแปลงระหว่าง 2 ตัวที่ไม่เข้ากัน convert เข้ามาหากัน เพื่อให้สามารถใช้งานร่วมกันได้ตามที่ client ต้องการ
+
+- องค์ประกอบของ Adapter จะมีดังนี้
+
+- Target interface ที่ client ต้องการจะใช้งาน
+- Adaptee class ที่มี interface ของตัวที่เป็นอยู่ปัจจุบัน (เป็นตัวที่ต้องการจะแปลงไป) แต่ไม่สามารถใช้งานได้ใน client code version ปัจจุบันแล้ว
+- Adapter class ที่จะทำการ implement ตาม Target interface ที่จะทำการห่อ Adaptee เพื่อทำการแปลง Adaptee ให้ใช้งานกับ Target ได้
+- ตัวอย่าง code
+```python
+class Target:
+    """
+    The Target defines the domain-specific interface used by the client code.
+    """
+
+    def request(self) -> str:
+        return "Target: The default target's behavior."
+
+
+class Adaptee:
+    """
+    The Adaptee contains some useful behavior, but its interface is incompatible
+    with the existing client code. The Adaptee needs some adaptation before the
+    client code can use it.
+    """
+
+    def specific_request(self) -> str:
+        return ".eetpadA eht fo roivaheb laicepS"
+
+
+class Adapter(Target, Adaptee):
+    """
+    The Adapter makes the Adaptee's interface compatible with the Target's
+    interface via multiple inheritance.
+    """
+
+    def request(self) -> str:
+        return f"Adapter: (TRANSLATED) {self.specific_request()[::-1]}"
+
+
+def client_code(target: "Target") -> None:
+    """
+    The client code supports all classes that follow the Target interface.
+    """
+
+    print(target.request(), end="")
+
+
+if __name__ == "__main__":
+    print("Client: I can work just fine with the Target objects:")
+    target = Target()
+    client_code(target)
+    print("\n")
+
+    adaptee = Adaptee()
+    print("Client: The Adaptee class has a weird interface. "
+          "See, I don't understand it:")
+    print(f"Adaptee: {adaptee.specific_request()}", end="\n\n")
+
+    print("Client: But I can work with it via the Adapter:")
+    adapter = Adapter()
+    client_code(adapter)
+```
+- Output
+```python
+Client: I can work just fine with the Target objects:
+Target: The default target's behavior.
+
+Client: The Adaptee class has a weird interface. See, I don't understand it:
+Adaptee: .eetpadA eht fo roivaheb laicepS
+
+Client: But I can work with it via the Adapter:
+Adapter: (TRANSLATED) Special behavior of the Adaptee.
+```
+- Bridge design pattern คือ pattern ที่ทำการแยกส่วน abstraction ออกมาจากส่วนของ implementation อีกทีเมื่อพบว่า ของลักษณะ 2 อย่างสามารถแยกส่วนให้ independent (ไม่ขึ้นต่อกัน) ได้ โดยปกติ pattern นี้จะเกี่ยวกับการแยกส่วนของพวก class ใหญ่ๆ หรือ set ของ class ที่ใกล้ๆกัน (แต่ใช้แยกกันได้) ทำการแยกส่วนกันออกมา เพื่อให้สามารถ implement ทั้ง 2 ส่วนแยกออกจากกันได้
+
+- องค์ประกอบของ Bridge จะประกอบด้วย
+
+- Abstraction layer นี้จะเป็นส่วนที่เป็น core (ส่วนใหญ่จะเป็น interface หรือ abstract class) ของ component ที่ต้องการประกาศให้เป็น high level control logic เพื่อใช้สำหรับการแยกส่วน implementation ออกจากกัน
+- Refined Abstraction เป็นส่วนขยายจาก Abstraction อีกทีโดยเพิ่ม behavior ลงไปใน Abstraction (โดยไม่ต้องแก้ไข interface เพิ่มเติมใน Implementor)
+- Implementor เป็นส่วนของ interface ที่ทำการกำหนดว่า จะต้อง implement operation ออกมายังไง (โดยอ้างอิงถึง abstraction ที่เป็นตัวหลัก)
+- Concrete Implementor เป็น class ที่จะ implement ต่อจาก implementor interface อีกที โดยจะเป็นการใส่ method ของการทำงานเข้าไป
+
+- ตัวอย่าง code
+```python 
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Abstraction:
+    """
+    The Abstraction defines the interface for the "control" part of the two
+    class hierarchies. It maintains a reference to an object of the
+    Implementation hierarchy and delegates all of the real work to this object.
+    """
+
+    def __init__(self, implementation: Implementation) -> None:
+        self.implementation = implementation
+
+    def operation(self) -> str:
+        return (f"Abstraction: Base operation with:\n"
+                f"{self.implementation.operation_implementation()}")
+
+
+class ExtendedAbstraction(Abstraction):
+    """
+    You can extend the Abstraction without changing the Implementation classes.
+    """
+
+    def operation(self) -> str:
+        return (f"ExtendedAbstraction: Extended operation with:\n"
+                f"{self.implementation.operation_implementation()}")
+
+
+class Implementation(ABC):
+    """
+    The Implementation defines the interface for all implementation classes. It
+    doesn't have to match the Abstraction's interface. In fact, the two
+    interfaces can be entirely different. Typically the Implementation interface
+    provides only primitive operations, while the Abstraction defines higher-
+    level operations based on those primitives.
+    """
+
+    @abstractmethod
+    def operation_implementation(self) -> str:
+        pass
+
+
+"""
+Each Concrete Implementation corresponds to a specific platform and implements
+the Implementation interface using that platform's API.
+"""
+
+
+class ConcreteImplementationA(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationA: Here's the result on the platform A."
+
+
+class ConcreteImplementationB(Implementation):
+    def operation_implementation(self) -> str:
+        return "ConcreteImplementationB: Here's the result on the platform B."
+
+
+def client_code(abstraction: Abstraction) -> None:
+    """
+    Except for the initialization phase, where an Abstraction object gets linked
+    with a specific Implementation object, the client code should only depend on
+    the Abstraction class. This way the client code can support any abstraction-
+    implementation combination.
+    """
+
+    # ...
+
+    print(abstraction.operation(), end="")
+
+    # ...
+
+
+if __name__ == "__main__":
+    """
+    The client code should be able to work with any pre-configured abstraction-
+    implementation combination.
+    """
+
+    implementation = ConcreteImplementationA()
+    abstraction = Abstraction(implementation)
+    client_code(abstraction)
+
+    print("\n")
+
+    implementation = ConcreteImplementationB()
+    abstraction = ExtendedAbstraction(implementation)
+    client_code(abstraction)
+```
+
+- Output
+```python 
+Abstraction: Base operation with:
+ConcreteImplementationA: Here's the result on the platform A.
+
+ExtendedAbstraction: Extended operation with:
+ConcreteImplementationB: Here's the result on the platform B.
+```
+
+- 3. รูปแบบ Composite
+- Compisite pattern คือ pattern ที่ทำการรวม object ไว้เป็นโครงสร้างแบบ tree structure เพื่อนำเสนอ object ในรูปแบบ heirarchies ออกมา โดย Pattern นี้จะอนุญาตให้ client สามารถเรียก object ทีละตัวแยกออกจากกัน และสามารถเรียกใข้ object นั้นแบบรวมหลายตัวพร้อมกัน ด้วย class ตัวเดียวกันออกมาได้นั่นเอง
+
+- องค์ประกอบของ Composite
+
+- Components intetface ที่กำหนด opration ทั่วไปสำหรับ composite (object ที่ใช้รวม object ตัวอื่นๆ) และ leaf node (object ที่ใช้แยก) ใน tree structure ซึ่งโดยปกติ ก็จะประกอบไปด้วย เพิ่ม, ลบ และดึง child component ออกมา
+Leaf นำเสนอ leaf object ที่อยู่ใน composite โดย leaf object นั้นจะไม่มี children อยู่ แต่จะมีการกำหนด behavior ของ object เอาไว้ในนี้แทน (ซึ่งจะเป็น behavior เดียวกับที่ composite ทำงาน)
+Composite class ที่ทำการเก็บ child components เอาไว้ ซึ่งใน composite จะประกอบด้วย leaf และ composite อยู่ด้วยกัน โดย Composite จะ implement ตาม interface และกำหนด operation ให้กับ children เพื่อให้ children แต่ละตัวต่างไปทำ behavior ของตัวเองต่อได้
+
+- ตัวอย่าง code
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List
+
+
+class Component(ABC):
+    """
+    The base Component class declares common operations for both simple and
+    complex objects of a composition.
+    """
+
+    @property
+    def parent(self) -> Component:
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent: Component):
+        """
+        Optionally, the base Component can declare an interface for setting and
+        accessing a parent of the component in a tree structure. It can also
+        provide some default implementation for these methods.
+        """
+
+        self._parent = parent
+
+    """
+    In some cases, it would be beneficial to define the child-management
+    operations right in the base Component class. This way, you won't need to
+    expose any concrete component classes to the client code, even during the
+    object tree assembly. The downside is that these methods will be empty for
+    the leaf-level components.
+    """
+
+    def add(self, component: Component) -> None:
+        pass
+
+    def remove(self, component: Component) -> None:
+        pass
+
+    def is_composite(self) -> bool:
+        """
+        You can provide a method that lets the client code figure out whether a
+        component can bear children.
+        """
+
+        return False
+
+    @abstractmethod
+    def operation(self) -> str:
+        """
+        The base Component may implement some default behavior or leave it to
+        concrete classes (by declaring the method containing the behavior as
+        "abstract").
+        """
+
+        pass
+
+
+class Leaf(Component):
+    """
+    The Leaf class represents the end objects of a composition. A leaf can't
+    have any children.
+
+    Usually, it's the Leaf objects that do the actual work, whereas Composite
+    objects only delegate to their sub-components.
+    """
+
+    def operation(self) -> str:
+        return "Leaf"
+
+
+class Composite(Component):
+    """
+    The Composite class represents the complex components that may have
+    children. Usually, the Composite objects delegate the actual work to their
+    children and then "sum-up" the result.
+    """
+
+    def __init__(self) -> None:
+        self._children: List[Component] = []
+
+    """
+    A composite object can add or remove other components (both simple or
+    complex) to or from its child list.
+    """
+
+    def add(self, component: Component) -> None:
+        self._children.append(component)
+        component.parent = self
+
+    def remove(self, component: Component) -> None:
+        self._children.remove(component)
+        component.parent = None
+
+    def is_composite(self) -> bool:
+        return True
+
+    def operation(self) -> str:
+        """
+        The Composite executes its primary logic in a particular way. It
+        traverses recursively through all its children, collecting and summing
+        their results. Since the composite's children pass these calls to their
+        children and so forth, the whole object tree is traversed as a result.
+        """
+
+        results = []
+        for child in self._children:
+            results.append(child.operation())
+        return f"Branch({'+'.join(results)})"
+
+
+def client_code(component: Component) -> None:
+    """
+    The client code works with all of the components via the base interface.
+    """
+
+    print(f"RESULT: {component.operation()}", end="")
+
+
+def client_code2(component1: Component, component2: Component) -> None:
+    """
+    Thanks to the fact that the child-management operations are declared in the
+    base Component class, the client code can work with any component, simple or
+    complex, without depending on their concrete classes.
+    """
+
+    if component1.is_composite():
+        component1.add(component2)
+
+    print(f"RESULT: {component1.operation()}", end="")
+
+
+if __name__ == "__main__":
+    # This way the client code can support the simple leaf components...
+    simple = Leaf()
+    print("Client: I've got a simple component:")
+    client_code(simple)
+    print("\n")
+
+    # ...as well as the complex composites.
+    tree = Composite()
+
+    branch1 = Composite()
+    branch1.add(Leaf())
+    branch1.add(Leaf())
+
+    branch2 = Composite()
+    branch2.add(Leaf())
+
+    tree.add(branch1)
+    tree.add(branch2)
+
+    print("Client: Now I've got a composite tree:")
+    client_code(tree)
+    print("\n")
+
+    print("Client: I don't need to check the components classes even when managing the tree:")
+    client_code2(tree, simple)
+```
+
+- Output
+```python
+Client: I've got a simple component:
+RESULT: Leaf
+
+Client: Now I've got a composite tree:
+RESULT: Branch(Branch(Leaf+Leaf)+Branch(Leaf))
+
+Client: I don't need to check the components classes even when managing the tree:
+RESULT: Branch(Branch(Leaf+Leaf)+Branch(Leaf)+Leaf)
+```
+
+- รูปแบบ Decorator
+- รูปแบบการออกแบบ Decorator เป็นรูปแบบเชิงโครงสร้าง (structural pattern) ที่เปิดให้เราสามารถเพิ่มพฤติกรรม (behavior) เข้าไปยังวัตถุ (object) เดี่ยวๆ ได้ โดยไม่กระทบต่อพฤติกรรมของ object อื่นๆ ใน class เดียวกัน รูปแบบนี้เป็นประโยชน์อย่างมากในการยึดหลักการ Open/Closed ซึ่งเป็นหนึ่งในหลักการ SOLID ที่ระบุว่าคลาสหนึ่งๆ ควรเปิดสำหรับการเพิ่มเติมส่วนขยาย แต่ปิดสำหรับการแก้ไขดัดแปลงโดยตรง
+
+- องค์ประกอบของ Decorator
+
+- Component กำหนด interface สำหรับ Object ที่เราจะสามารถเพิ่มความสามารถเข้าไปได้ภายหลัง (ตอนที่โปรแกรมรันอยู่)
+- Concrete Component นำ interface ของ Component มา implement ตัวนี้เปรียบเสมือน Base Object ที่เราจะเพิ่มความสามารถให้ในภายหลังได้
+- Decorator ส่วนนี้จะ reference ไปยัง Object ที่เป็น Component และมี interface ที่สอดคล้องกับ interface ของ Component ด้วย ตัว Decorator จะเป็นเหมือน Base ในการสร้างตัวตกแต่งที่เฉพาะเจาะจงต่อไป
+- Concrete Decorators เป็นการใช้งาน Decorator จริงๆ ตรงนี้เราจะเขียน code ใส่ behavior ต่างๆ ที่อยากเพิ่มให้กับ Object xของเราเข้าไป ซึ่งอาจมี Concrete Decorator ได้หลายตัวเพื่อตกแต่งในรูปแบบที่แตกต่างกันออกไป
+
+- ตัวอย่าง code
+```python
+class Component():
+    """
+    The base Component interface defines operations that can be altered by
+    decorators.
+    """
+
+    def operation(self) -> str:
+        pass
+
+
+class ConcreteComponent(Component):
+    """
+    Concrete Components provide default implementations of the operations. There
+    might be several variations of these classes.
+    """
+
+    def operation(self) -> str:
+        return "ConcreteComponent"
+
+
+class Decorator(Component):
+    """
+    The base Decorator class follows the same interface as the other components.
+    The primary purpose of this class is to define the wrapping interface for
+    all concrete decorators. The default implementation of the wrapping code
+    might include a field for storing a wrapped component and the means to
+    initialize it.
+    """
+
+    _component: Component = None
+
+    def __init__(self, component: Component) -> None:
+        self._component = component
+
+    @property
+    def component(self) -> Component:
+        """
+        The Decorator delegates all work to the wrapped component.
+        """
+
+        return self._component
+
+    def operation(self) -> str:
+        return self._component.operation()
+
+
+class ConcreteDecoratorA(Decorator):
+    """
+    Concrete Decorators call the wrapped object and alter its result in some
+    way.
+    """
+
+    def operation(self) -> str:
+        """
+        Decorators may call parent implementation of the operation, instead of
+        calling the wrapped object directly. This approach simplifies extension
+        of decorator classes.
+        """
+        return f"ConcreteDecoratorA({self.component.operation()})"
+
+
+class ConcreteDecoratorB(Decorator):
+    """
+    Decorators can execute their behavior either before or after the call to a
+    wrapped object.
+    """
+
+    def operation(self) -> str:
+        return f"ConcreteDecoratorB({self.component.operation()})"
+
+
+def client_code(component: Component) -> None:
+    """
+    The client code works with all objects using the Component interface. This
+    way it can stay independent of the concrete classes of components it works
+    with.
+    """
+
+    # ...
+
+    print(f"RESULT: {component.operation()}", end="")
+
+    # ...
+
+
+if __name__ == "__main__":
+    # This way the client code can support both simple components...
+    simple = ConcreteComponent()
+    print("Client: I've got a simple component:")
+    client_code(simple)
+    print("\n")
+
+    # ...as well as decorated ones.
+    #
+    # Note how decorators can wrap not only simple components but the other
+    # decorators as well.
+    decorator1 = ConcreteDecoratorA(simple)
+    decorator2 = ConcreteDecoratorB(decorator1)
+    print("Client: Now I've got a decorated component:")
+    client_code(decorator2)
+```
+
+- Output
+```python
+Client: I've got a simple component:
+RESULT: ConcreteComponent
+
+Client: Now I've got a decorated component:
+RESULT: ConcreteDecoratorB(ConcreteDecoratorA(ConcreteComponent))
+```
+- 5.รูปแบบ Facade
+- รูปแบบการออกแบบ Facade เป็นรูปแบบที่สร้าง interface แบบง่าย เพื่อให้สามารถใช้งานระบบย่อย (subsystems) อันซับซ้อนที่อาจประกอบด้วย class, library หรือ framework ต่างๆออกมาได้ รูปแบบนี้จะใช้ facade object เพื่อทำหน้าที่เป็นจุดเข้าถึงเพียงจุดเดียว 
+  ซึ่งจะคอยอำพรางความซับซ้อนของระบบย่อยเอาไว้ไม่ให้ฝั่งผู้ใช้งาน (client) เห็น ทำให้ผู้ใช้งานสามารถโต้ตอบกับระบบได้ผ่าน interface ที่ตรงไปตรงมา โดยไม่ต้องกังวลกับความซับซ้อนภายในได้
+
+- องค์ประกอบของ Facade ประกอบด้วย
+
+- Facade class หลักที่ทำหน้าที่เป็น interface แบบง่ายสำหรับการเข้าถึงระบบย่อย Facade จะรับผิดชอบจัดการกับระบบย่อยทั้งหมดและเปิดเผย API ที่ใช้งานง่ายแก่ผู้ใช้งาน
+- Subsystem ระบบย่อยหรือ Class ต่างๆ ที่มีความซับซ้อน Facade จะทำหน้าที่ซ่อนความซับซ้อนเหล่านี้จากผู้ใช้งานเอาไว้
+- Client ผู้ใช้งานหรือ Class อื่นๆ ที่ต้องการใช้ระบบย่อย Client จะโต้ตอบกับระบบผ่าน Facade โดยไม่ต้องรู้รายละเอียดของระบบย่อย
+
+- ตัวอย่าง code
+```python
+from __future__ import annotations
+
+
+class Facade:
+    """
+    The Facade class provides a simple interface to the complex logic of one or
+    several subsystems. The Facade delegates the client requests to the
+    appropriate objects within the subsystem. The Facade is also responsible for
+    managing their lifecycle. All of this shields the client from the undesired
+    complexity of the subsystem.
+    """
+
+    def __init__(self, subsystem1: Subsystem1, subsystem2: Subsystem2) -> None:
+        """
+        Depending on your application's needs, you can provide the Facade with
+        existing subsystem objects or force the Facade to create them on its
+        own.
+        """
+
+        self._subsystem1 = subsystem1 or Subsystem1()
+        self._subsystem2 = subsystem2 or Subsystem2()
+
+    def operation(self) -> str:
+        """
+        The Facade's methods are convenient shortcuts to the sophisticated
+        functionality of the subsystems. However, clients get only to a fraction
+        of a subsystem's capabilities.
+        """
+
+        results = []
+        results.append("Facade initializes subsystems:")
+        results.append(self._subsystem1.operation1())
+        results.append(self._subsystem2.operation1())
+        results.append("Facade orders subsystems to perform the action:")
+        results.append(self._subsystem1.operation_n())
+        results.append(self._subsystem2.operation_z())
+        return "\n".join(results)
+
+
+class Subsystem1:
+    """
+    The Subsystem can accept requests either from the facade or client directly.
+    In any case, to the Subsystem, the Facade is yet another client, and it's
+    not a part of the Subsystem.
+    """
+
+    def operation1(self) -> str:
+        return "Subsystem1: Ready!"
+
+    # ...
+
+    def operation_n(self) -> str:
+        return "Subsystem1: Go!"
+
+
+class Subsystem2:
+    """
+    Some facades can work with multiple subsystems at the same time.
+    """
+
+    def operation1(self) -> str:
+        return "Subsystem2: Get ready!"
+
+    # ...
+
+    def operation_z(self) -> str:
+        return "Subsystem2: Fire!"
+
+
+def client_code(facade: Facade) -> None:
+    """
+    The client code works with complex subsystems through a simple interface
+    provided by the Facade. When a facade manages the lifecycle of the
+    subsystem, the client might not even know about the existence of the
+    subsystem. This approach lets you keep the complexity under control.
+    """
+
+    print(facade.operation(), end="")
+
+
+if __name__ == "__main__":
+    # The client code may have some of the subsystem's objects already created.
+    # In this case, it might be worthwhile to initialize the Facade with these
+    # objects instead of letting the Facade create new instances.
+    subsystem1 = Subsystem1()
+    subsystem2 = Subsystem2()
+    facade = Facade(subsystem1, subsystem2)
+    client_code(facade)
+```
+
+- Output
+```python
+Facade initializes subsystems:
+Subsystem1: Ready!
+Subsystem2: Get ready!
+Facade orders subsystems to perform the action:
+Subsystem1: Go!
+Subsystem2: Fire!
+```
+- 6.รูปแบบ Flyweight
+- รูปแบบการออกแบบ Flyweight เป็นรูปแบบที่ใช้เพื่อลดการใช้หน่วยความจำหรือลดต้นทุนการคำนวณโดยการแบ่งปันข้อมูลให้มากที่สุดเท่าที่จะทำได้กับ Object ที่เกี่ยวข้อง รูปแบบนี้มีประโยชน์อย่างมากเมื่อมี Object จำนวนมากที่ต้องใช้ state ร่วมกัน โดยหลักการแล้วรูปแบบ Flyweight มีเป้าหมายเพื่อนำ instance ของวัตถุกลับมาใช้ใหม่เพื่อลดความต้องการทรัพยากรหน่วยความจำด้วยการ share ร่วมกัน โดยแยกแยะระหว่างสถานะภายในของวัตถุ (intrinsic state) ซึ่งจะเหมือนกันในทุก instance ออกจากสถานะภายนอก (extrinsic state) ซึ่งจะแตกต่างกันได้ระหว่าง object
+
+- อธิบายเพิ่มเติม
+
+- Intrinsic state คือ ข้อมูลหรือคุณสมบัติที่เป็นคุณสมบัติหลักของ Object (unique) ไม่เปลี่ยนแปลงตามบริบทการใช้งาน ตัวอย่างเช่น รหัสอักขระของตัวอักษร (a, ก), ขนาดของรูปภาพ, เพศของบุคคล
+- Extrinsic State คือ ข้อมูลหรือคุณสมบัติที่เปลี่ยนแปลงตามบริบทการใช้งาน ตัวอย่างเช่น ตำแหน่งของตัวอักษรในข้อความ, สีพื้นหลังของรูปภาพ, อารมณ์ของบุคคล
+- องค์ประกอบของ Flyweight ประกอบด้วย
+
+- Flyweight interface กลางที่ Flyweight ตัวต่างๆ จะนำไปใช้งานเพื่อรองรับการรับและจัดการกับ extrinsic state (สถานะภายนอก)
+Concrete Flyweight คือการเขียน code เพื่อใช้งานตาม interface ของ Flyweight ตรงนี้จะมีการเก็บ intrinsic state (สถานะภายใน) ไว้ โดย intrinsic state จะเป็นข้อมูลที่ไม่ขึ้นอยู่กับบริบทของการใช้งาน และสามารถแชร์กันได้ (ตัวอย่างเช่น รหัสอักขระของตัวอักษรแต่ละตัว)
+- Flyweight Factory ส่วนนี้ทำหน้าที่จัดการ object ประเภท Flyweight และมั่นใจว่าจะเกิดการแชร์ใช้ object หรือ instance ร่วมกันอย่างเหมาะสม เมื่อ Client request การใช้งาน Flyweight Factory นี้จะดูว่ามีอยู่แล้วหรือไม่ ถ้ายังไม่มีก็จะสร้างใหม่ออกไปและจัดเก็บไว้ใน Factory อย่างถูกต้องได้
+- Client Code ส่วนที่เรียกใช้ Flyweight Factory เพื่อเข้าถึง Object ประเภท Flyweight โดยมีหน้าที่รับผิดชอบเรื่องการจัดการ extrinsic state (สถานะภายนอก) ที่เกี่ยวข้องกับ Flyweight แต่ละตัว (ซึ่งมีโอกาสแตกต่างกันได้ และแชร์กันไม่ได้)
+
+- ตัวอย่าง code
+```python
+import json
+from typing import Dict
+
+
+class Flyweight():
+    """
+    The Flyweight stores a common portion of the state (also called intrinsic
+    state) that belongs to multiple real business entities. The Flyweight
+    accepts the rest of the state (extrinsic state, unique for each entity) via
+    its method parameters.
+    """
+
+    def __init__(self, shared_state: str) -> None:
+        self._shared_state = shared_state
+
+    def operation(self, unique_state: str) -> None:
+        s = json.dumps(self._shared_state)
+        u = json.dumps(unique_state)
+        print(f"Flyweight: Displaying shared ({s}) and unique ({u}) state.", end="")
+
+
+class FlyweightFactory():
+    """
+    The Flyweight Factory creates and manages the Flyweight objects. It ensures
+    that flyweights are shared correctly. When the client requests a flyweight,
+    the factory either returns an existing instance or creates a new one, if it
+    doesn't exist yet.
+    """
+
+    _flyweights: Dict[str, Flyweight] = {}
+
+    def __init__(self, initial_flyweights: Dict) -> None:
+        for state in initial_flyweights:
+            self._flyweights[self.get_key(state)] = Flyweight(state)
+
+    def get_key(self, state: Dict) -> str:
+        """
+        Returns a Flyweight's string hash for a given state.
+        """
+
+        return "_".join(sorted(state))
+
+    def get_flyweight(self, shared_state: Dict) -> Flyweight:
+        """
+        Returns an existing Flyweight with a given state or creates a new one.
+        """
+
+        key = self.get_key(shared_state)
+
+        if not self._flyweights.get(key):
+            print("FlyweightFactory: Can't find a flyweight, creating new one.")
+            self._flyweights[key] = Flyweight(shared_state)
+        else:
+            print("FlyweightFactory: Reusing existing flyweight.")
+
+        return self._flyweights[key]
+
+    def list_flyweights(self) -> None:
+        count = len(self._flyweights)
+        print(f"FlyweightFactory: I have {count} flyweights:")
+        print("\n".join(map(str, self._flyweights.keys())), end="")
+
+
+def add_car_to_police_database(
+    factory: FlyweightFactory, plates: str, owner: str,
+    brand: str, model: str, color: str
+) -> None:
+    print("\n\nClient: Adding a car to database.")
+    flyweight = factory.get_flyweight([brand, model, color])
+    # The client code either stores or calculates extrinsic state and passes it
+    # to the flyweight's methods.
+    flyweight.operation([plates, owner])
+
+
+if __name__ == "__main__":
+    """
+    The client code usually creates a bunch of pre-populated flyweights in the
+    initialization stage of the application.
+    """
+
+    factory = FlyweightFactory([
+        ["Chevrolet", "Camaro2018", "pink"],
+        ["Mercedes Benz", "C300", "black"],
+        ["Mercedes Benz", "C500", "red"],
+        ["BMW", "M5", "red"],
+        ["BMW", "X6", "white"],
+    ])
+
+    factory.list_flyweights()
+
+    add_car_to_police_database(
+        factory, "CL234IR", "James Doe", "BMW", "M5", "red")
+
+    add_car_to_police_database(
+        factory, "CL234IR", "James Doe", "BMW", "X1", "red")
+
+    print("\n")
+
+    factory.list_flyweights()
+```
+
+- Output
+```
+FlyweightFactory: I have 5 flyweights:
+Camaro2018_Chevrolet_pink
+C300_Mercedes Benz_black
+C500_Mercedes Benz_red
+BMW_M5_red
+BMW_X6_white
+
+Client: Adding a car to database.
+FlyweightFactory: Reusing existing flyweight.
+Flyweight: Displaying shared (["BMW", "M5", "red"]) and unique (["CL234IR", "James Doe"]) state.
+
+Client: Adding a car to database.
+FlyweightFactory: Can't find a flyweight, creating new one.
+Flyweight: Displaying shared (["BMW", "X1", "red"]) and unique (["CL234IR", "James Doe"]) state.
+
+FlyweightFactory: I have 6 flyweights:
+Camaro2018_Chevrolet_pink
+C300_Mercedes Benz_black
+C500_Mercedes Benz_red
+BMW_M5_red
+BMW_X6_white
+BMW_X1_red
+```
+
+- 7. รูปแบบ Proxy
+- รูปแบบการออกแบบเชิงโครงสร้าง Proxy จะสร้าง Object ตัวแทนขึ้นมาทำหน้าที่ควบคุมการเข้าถึง Object จริง โดย Proxy สามารถดักจับการเข้าถึง Object จริงไว้ทั้งหมดแทน เพื่อเป็นตัวดำเนินการเพิ่มเติมอื่นๆแทน ไม่ว่าจะเป็นก่อนหรือหลังจากที่ส่งต่อการทำงานไปยัง Object จริง ตัวอย่างการใช้งาน ได้แก่ การควบคุมการเข้าถึง การเก็บข้อมูลไว้ใช้ซ้ำ (caching) การเริ่มใช้งาน Object จริงเมื่อจำเป็นเท่านั้น (lazy initialization) การบันทึกข้อมูล (logging) และการตรวจสอบ (monitoring) เป็นต้น
+
+- องค์ประกอบของ Proxy ประกอบด้วย
+
+- Subject interface ที่กำหนดชุดคำสั่งการทำงานพื้นฐานที่ทั้ง RealSubject และ Proxy ต้องมีใช้งานร่วมกัน เพื่อให้ฝั่ง Client (ผู้ใช้งาน) สามารถใช้ทั้ง Object จริงและ Object Proxy ออกมาได้
+- RealSubject นี่คือ Object จริง ที่มีชุดคำสั่งหลักของระบบที่เราต้องการให้มีการควบคุมการเข้าถึง
+- Proxy จะมีการเก็บ reference ไปยัง RealSubject ส่วน Proxy นี้มีหน้าที่ควบคุมการเข้าถึงตัว RealSubject ได้หลายรูปแบบ ไม่ว่าจะเป็นส่งต่อคำสั่งให้ RealSubject ทำงาน ไปจนถึงหน่วงเวลาการสร้าง RealSubject (ในกรณี lazy initialization) หรือห้ามเข้าถึงเลยก็ทำได้ นอกจากนี้ Proxy สามารถทำงานอื่นๆ เพิ่มเติมได้ทั้งก่อน และหลัง การติดต่อ RealSubject ด้วยเช่นกัน
+
+- ตัวอย่าง code
+```python
+from abc import ABC, abstractmethod
+
+
+class Subject(ABC):
+    """
+    The Subject interface declares common operations for both RealSubject and
+    the Proxy. As long as the client works with RealSubject using this
+    interface, you'll be able to pass it a proxy instead of a real subject.
+    """
+
+    @abstractmethod
+    def request(self) -> None:
+        pass
+
+
+class RealSubject(Subject):
+    """
+    The RealSubject contains some core business logic. Usually, RealSubjects are
+    capable of doing some useful work which may also be very slow or sensitive -
+    e.g. correcting input data. A Proxy can solve these issues without any
+    changes to the RealSubject's code.
+    """
+
+    def request(self) -> None:
+        print("RealSubject: Handling request.")
+
+
+class Proxy(Subject):
+    """
+    The Proxy has an interface identical to the RealSubject.
+    """
+
+    def __init__(self, real_subject: RealSubject) -> None:
+        self._real_subject = real_subject
+
+    def request(self) -> None:
+        """
+        The most common applications of the Proxy pattern are lazy loading,
+        caching, controlling the access, logging, etc. A Proxy can perform one
+        of these things and then, depending on the result, pass the execution to
+        the same method in a linked RealSubject object.
+        """
+
+        if self.check_access():
+            self._real_subject.request()
+            self.log_access()
+
+    def check_access(self) -> bool:
+        print("Proxy: Checking access prior to firing a real request.")
+        return True
+
+    def log_access(self) -> None:
+        print("Proxy: Logging the time of request.", end="")
+
+
+def client_code(subject: Subject) -> None:
+    """
+    The client code is supposed to work with all objects (both subjects and
+    proxies) via the Subject interface in order to support both real subjects
+    and proxies. In real life, however, clients mostly work with their real
+    subjects directly. In this case, to implement the pattern more easily, you
+    can extend your proxy from the real subject's class.
+    """
+
+    # ...
+
+    subject.request()
+
+    # ...
+
+
+if __name__ == "__main__":
+    print("Client: Executing the client code with a real subject:")
+    real_subject = RealSubject()
+    client_code(real_subject)
+
+    print("")
+
+    print("Client: Executing the same client code with a proxy:")
+    proxy = Proxy(real_subject)
+    client_code(proxy)
+
+```
+
+- Output
+```
+Client: Executing the client code with a real subject:
+RealSubject: Handling request.
+
+Client: Executing the same client code with a proxy:
+Proxy: Checking access prior to firing a real request.
+RealSubject: Handling request.
+Proxy: Logging the time of request
+```
