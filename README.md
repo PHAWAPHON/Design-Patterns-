@@ -28,6 +28,14 @@ Patterns ประกอบด้วยอะไรบ้าง?
 
 > Identification: วิธีการของ Factory สามารถระบุได้จากวิธีการสร้างที่สร้างออบเจ็กต์จากคลาสคอนกรีต ในขณะที่คลาสคอนกรีตถูกใช้ในระหว่างการสร้างออบเจ็กต์ ประเภทการคืนค่าของวิธีการ Factory มักจะถูกประกาศเป็นabstract classหรือinterface
 
+- รูปแบบ Factory Method ประกอบด้วยองค์ประกอบต่อไปนี้
+
+- Product Interface เป็น interface ที่กำหนด method ที่ต้องมีใน Object ที่ถูกสร้างขึ้นโดย Factory Method (โดยปกติของ OOP จะใช้เป็น abstract class)
+- Concrete Products เป็น Class ที่สืบทอดมาจาก Product Interface และมีการเขียน method ที่ถูกกำหนดใน Product Interface
+- Creator Class เป็น Class ที่มี method สร้าง Object (Factory Method) ซึ่งใช้สร้าง Object ตามประเภทที่ต้องการ
+
+- ตัวอย่าง code
+  
 ```python
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -125,4 +133,14 @@ if __name__ == "__main__":
 
     print("App: เริ่มต้นด้วย ConcreteCreator2.")
     client_code(ConcreteCreator2())
+```
+- Output
+```python
+App: Launched with the ConcreteCreator1.
+Client: I'm not aware of the creator's class, but it still works.
+Creator: The same creator's code has just worked with {Result of the ConcreteProduct1}
+
+App: Launched with the ConcreteCreator2.
+Client: I'm not aware of the creator's class, but it still works.
+Creator: The same creator's code has just worked with {Result of the ConcreteProduct2}
 ```
