@@ -146,3 +146,56 @@ App: Launched with the ConcreteCreator2.
 Client: I'm not aware of the creator's class, but it still works.
 Creator: The same creator's code has just worked with {Result of the ConcreteProduct2}
 ```
+
+- 2.Singleton
+- องค์ประกอบ Singleton
+  รูปแบบ Singleton รับประกันว่ามีเพียง instance เดียวของ class เท่านั้นในระบบ รูปแบบนี้มักใช้สำหรับ class ที่ต้องการจัดการทรัพยากรระบบทั่วไป หรือ class ที่ต้องการให้แน่ใจว่ามีสถานะที่สอดคล้องกันตลอดทั้งระบบ (เกิดขึ้นเพียงครั้งเดียวในระบบเท่านั้น)
+
+- ตัวอย่าง code
+```python
+class SingletonMeta(type):
+    """
+    คลาส Singleton สามารถถูกนำมาใช้ในวิธีที่ต่างกันใน Python วิธีการบางอย่างที่เป็นไปได้คือ: 
+    base class, decorator, metaclass เราจะใช้ metaclass เพราะเหมาะสมที่สุดสำหรับจุดประสงค์นี้
+    """
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        """
+        การเปลี่ยนแปลงที่อาจเกิดขึ้นกับค่า argument ของ `__init__` จะไม่ส่งผลต่อ
+        อินสแตนซ์ที่คืนค่า
+        """
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class Singleton(metaclass=SingletonMeta):
+    def some_business_logic(self):
+        """
+        สุดท้าย singleton ควรกำหนด business logic บางอย่างที่สามารถ
+        ถูกดำเนินการบนอินสแตนซ์ของมัน
+        """
+
+        # ...
+
+
+if __name__ == "__main__":
+   
+
+    s1 = Singleton()
+    s2 = Singleton()
+
+    if id(s1) == id(s2):
+        print("Singleton works, both variables contain the same instance.")
+    else:
+        print("Singleton failed, variables contain different instances.")
+```
+
+- Output
+```python
+Singleton works, both variables contain the same instance.
+```
+
