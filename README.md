@@ -31,7 +31,9 @@ Patterns ประกอบด้วยอะไรบ้าง?
 - รูปแบบ Factory Method ประกอบด้วยองค์ประกอบต่อไปนี้
 
  1.Product Interface เป็น interface ที่กำหนด method ที่ต้องมีใน Object ที่ถูกสร้างขึ้นโดย Factory Method (โดยปกติของ OOP จะใช้เป็น abstract class)
+ 
  2.Concrete Products เป็น Class ที่สืบทอดมาจาก Product Interface และมีการเขียน method ที่ถูกกำหนดใน Product Interface
+ 
  3.Creator Class เป็น Class ที่มี method สร้าง Object (Factory Method) ซึ่งใช้สร้าง Object ตามประเภทที่ต้องการ
 
 - ตัวอย่าง code
